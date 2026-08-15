@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Goals · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .goals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--sp-5);
+    }
+    .goal-card__meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--fs-xs);
+      color: var(--color-text-faint);
+      margin-bottom: 2px;
+    }
+    .goal-card__actions {
+      display: flex;
+      gap: var(--sp-2);
+      margin-top: var(--sp-3);
+    }
+    .goal-card__actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+    .history-list {
+      max-height: 360px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+    .history-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+    }
+    .history-row__meta { flex: 1; min-width: 0; }
+    .history-row__where {
+      font-weight: 600;
+      font-size: var(--fs-sm);
+      margin: 0 0 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .history-row__date {
+      font-size: var(--fs-xs);
+      color: var(--color-text-faint);
+      margin: 0;
+    }
+    .history-row__amount {
+      font-weight: 700;
+      font-size: var(--fs-sm);
+      color: var(--color-accent);
+      white-space: nowrap;
+    }
+    .field-hint-inline {
+      font-size: var(--fs-xs);
+      color: var(--color-text-faint);
+      margin-top: -2px;
+      margin-bottom: var(--sp-4);
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Savings Goals</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="btn btn--primary" data-add-goal-btn>
+            <i class="fa-solid fa-plus"></i> New Goal
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Summary -->
+        <section class="grid-stats stagger-in" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Total Target</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-bullseye"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-target>$0.00</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Total Saved</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-piggy-bank"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-saved>$0.00</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Needed / Month</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-calendar-days"></i></span>
+            </div>
+            <div class="stat-card__value num" data-monthly-needed>$0.00</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Goals Achieved</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-trophy"></i></span>
+            </div>
+            <div class="stat-card__value" data-goals-achieved>0 of 0</div>
+          </div>
+        </section>
+
+        <!-- Goal cards -->
+        <section class="stagger-in">
+          <div class="section-heading" style="margin-bottom: var(--sp-3);">
+            <h2 style="margin:0;">Your Goals</h2>
+          </div>
+          <div class="goals-grid" data-goals-grid></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT GOAL PAGE ============ -->
+  <div class="modal-backdrop" id="goalModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>New Savings Goal</h1>
+          <p>Plan ahead for what you're saving toward</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Goals
+        </button>
+      </div>
+
+    <form class="modal" data-goal-form novalidate>
+      <div class="field">
+        <label for="goalName">Goal</label>
+        <input id="goalName" type="text" placeholder="e.g. Emergency Fund, Retirement, New Car" data-form-name required />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="goalPresentValue">Money Needed Today</label>
+          <input id="goalPresentValue" type="number" step="0.01" min="0.01" placeholder="0.00" data-form-present-value required />
+        </div>
+        <div class="field">
+          <label for="goalDate">Target Date</label>
+          <input id="goalDate" type="date" data-form-date required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="goalInflation">Inflation Rate (% per year)</label>
+        <input id="goalInflation" type="number" step="0.1" min="0" placeholder="e.g. 6" data-form-inflation required />
+      </div>
+      <div class="field-hint-inline" data-target-preview></div>
+
+      <div class="field-row" data-initial-amount-row>
+        <div class="field">
+          <label for="goalInitialAmount">Initial Amount Saved</label>
+          <input id="goalInitialAmount" type="number" step="0.01" min="0" placeholder="0.00" data-form-initial-amount />
+        </div>
+        <div class="field">
+          <label for="goalInitialDate">Date</label>
+          <input id="goalInitialDate" type="date" data-form-initial-date />
+        </div>
+      </div>
+
+      <div class="field-row" data-initial-where-row>
+        <div class="field">
+          <label for="goalInitialWhere">Where Saved</label>
+          <input id="goalInitialWhere" type="text" placeholder="e.g. DBS Savings, Fixed Deposit, Cash" data-form-initial-where />
+        </div>
+        <div class="field">
+          <label for="goalInitialReturnRate">Return Rate (% per year)</label>
+          <input id="goalInitialReturnRate" type="number" step="0.1" min="0" placeholder="e.g. 3" data-form-initial-return-rate />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Goal</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ ADD ENTRY PAGE ============ -->
+  <div class="modal-backdrop" id="entryModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>Add Entry — <span data-entry-goal-name></span></h1>
+          <p>Log money you've put toward this goal</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Goals
+        </button>
+      </div>
+
+    <form class="modal" data-entry-form novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="entryAmount">Amount</label>
+          <input id="entryAmount" type="number" step="0.01" min="0.01" placeholder="0.00" data-entry-amount required />
+        </div>
+        <div class="field">
+          <label for="entryDate">Date</label>
+          <input id="entryDate" type="date" data-entry-date required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="entryWhere">Where Saved</label>
+        <input id="entryWhere" type="text" placeholder="e.g. DBS Savings, Fixed Deposit, Cash" data-entry-where required />
+      </div>
+
+      <div class="field">
+        <label for="entryReturnRate">Return Rate There (% per year)</label>
+        <input id="entryReturnRate" type="number" step="0.1" min="0" placeholder="e.g. 3" data-entry-return-rate />
+      </div>
+      <div class="field-hint-inline">Interest/return this account earns — used with inflation to work out your monthly saving.</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-plus"></i> Add Entry</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ HISTORY PAGE ============ -->
+  <div class="modal-backdrop" id="historyModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>History — <span data-history-goal-name></span></h1>
+          <p>Every contribution logged for this goal</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Goals
+        </button>
+      </div>
+
+    <div class="modal">
+      <div class="history-list" data-history-list></div>
+    </div>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/goals.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/components/datepicker.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/goals.js"></script>
+</body>
+</html>

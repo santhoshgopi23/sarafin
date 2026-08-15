@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Net Worth · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .chart-panel__canvas-wrap--tall { height: 300px; }
+    .chart-panel__sub {
+      font-size: var(--fs-xs);
+      color: var(--color-text-faint);
+      margin-top: 2px;
+    }
+    .breakdown-group__header {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      width: 100%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: var(--sp-2) 0;
+      color: var(--color-text);
+    }
+    .breakdown-group__header .breakdown-group__label { margin: 0; }
+    .breakdown-group__count { color: var(--color-text-faint); font-weight: 500; text-transform: none; letter-spacing: 0; }
+    .breakdown-group + .breakdown-group { margin-top: var(--sp-2); }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Net Worth</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions" style="display:flex; align-items:center; gap: var(--sp-3);">
+          <!-- Export dropdown -->
+          <div id="networthExportContainer"></div>
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Hero: headline net worth number + assets-vs-liabilities bar -->
+        <section class="grid-split stagger-in">
+          <div class="glass hero-balance">
+            <span class="hero-balance__label"><i class="fa-solid fa-scale-balanced"></i> What you own minus what you owe</span>
+            <div class="hero-balance__value num" data-networth-value>$0.00</div>
+
+            <div class="split-bar">
+              <div class="split-bar__seg split-bar__seg--assets" data-bar-assets style="width:50%;"></div>
+              <div class="split-bar__seg split-bar__seg--liabilities" data-bar-liabilities style="width:50%;"></div>
+            </div>
+            <div class="split-bar__labels">
+              <span><i class="fa-solid fa-circle" style="color: var(--color-accent); font-size:8px;"></i> Assets <span data-label-assets>$0.00</span></span>
+              <span><i class="fa-solid fa-circle" style="color: var(--color-negative); font-size:8px;"></i> Liabilities <span data-label-liabilities>$0.00</span></span>
+            </div>
+
+            <div class="hero-balance__row">
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">Total assets</span>
+                <span class="hero-balance__mini-value num" data-mini-assets>$0.00</span>
+              </div>
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">Total liabilities</span>
+                <span class="hero-balance__mini-value num" data-mini-liabilities>$0.00</span>
+              </div>
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">Debt-to-asset ratio</span>
+                <span class="hero-balance__mini-value num" data-mini-ratio>0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">This Month's Cash Flow</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-arrows-left-right"></i></span>
+            </div>
+            <ul class="row-list">
+              <li class="list-row">
+                <span class="chip tone-accent" style="width:38px;height:38px;"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                <div class="list-row__meta"><p class="list-row__title">Income</p></div>
+                <span class="list-row__amount num" style="color: var(--color-accent);" data-cashflow-income>+$0.00</span>
+              </li>
+              <li class="list-row">
+                <span class="chip tone-negative" style="width:38px;height:38px;"><i class="fa-solid fa-arrow-trend-down"></i></span>
+                <div class="list-row__meta"><p class="list-row__title">Expenses</p></div>
+                <span class="list-row__amount num" style="color: var(--color-negative);" data-cashflow-expense>-$0.00</span>
+              </li>
+              <li class="list-row">
+                <span class="chip tone-info" style="width:38px;height:38px;"><i class="fa-solid fa-piggy-bank"></i></span>
+                <div class="list-row__meta"><p class="list-row__title">Net savings</p></div>
+                <span class="list-row__amount num" data-cashflow-net>$0.00</span>
+              </li>
+            </ul>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: var(--sp-3); line-height:1.5;">
+              This tracks what you earned vs. spent this month. It's separate from Net Worth above — remember to update your account balances after payday or a big purchase so Net Worth stays accurate.
+            </p>
+          </div>
+        </section>
+
+        <!-- Stat cards -->
+        <section class="grid-stats stagger-in" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="glass card card--interactive">
+            <div class="card__header">
+              <h3 class="card__title">Cash & Bank</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-building-columns"></i></span>
+            </div>
+            <div class="stat-card__value num" data-stat-cash>$0.00</div>
+          </div>
+          <div class="glass card card--interactive">
+            <div class="card__header">
+              <h3 class="card__title">Investments</h3>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+            <div class="stat-card__value num" data-stat-investments>$0.00</div>
+          </div>
+          <div class="glass card card--interactive">
+            <div class="card__header">
+              <h3 class="card__title">Loans & Debts</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+            </div>
+            <div class="stat-card__value num" data-stat-loans>$0.00</div>
+          </div>
+          <div class="glass card card--interactive">
+            <div class="card__header">
+              <h3 class="card__title">Loans &amp; Lending</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+            </div>
+            <div class="stat-card__value num" data-stat-lent>$0.00</div>
+          </div>
+        </section>
+
+        <!-- Net worth trend -->
+        <section class="stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <div>
+                <h3 class="card__title">Net Worth Over Time</h3>
+                <p class="chart-panel__sub" data-networth-trend-sub>Tracking starts today — check back as you keep updating your accounts.</p>
+              </div>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+            <div class="chart-panel__canvas-wrap chart-panel__canvas-wrap--tall">
+              <canvas id="netWorthTrendChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="grid-two stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Assets Breakdown</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="assetsChart"></canvas>
+            </div>
+            <div class="legend-inline" data-assets-legend></div>
+          </div>
+
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Liabilities Breakdown</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="liabilitiesChart"></canvas>
+            </div>
+            <div class="legend-inline" data-liabilities-legend></div>
+          </div>
+        </section>
+
+        <!-- Detailed line items -->
+        <section class="grid-two stagger-in">
+          <div class="glass card">
+            <div class="section-heading">
+              <h2 style="margin:0;">Assets</h2>
+              <span data-assets-total style="font-size: var(--fs-sm); font-weight:700; color: var(--color-accent);">$0.00</span>
+            </div>
+            <div data-assets-list style="margin-top: var(--sp-2);"></div>
+          </div>
+
+          <div class="glass card">
+            <div class="section-heading">
+              <h2 style="margin:0;">Liabilities</h2>
+              <span data-liabilities-total style="font-size: var(--fs-sm); font-weight:700; color: var(--color-negative);">$0.00</span>
+            </div>
+            <div data-liabilities-list style="margin-top: var(--sp-2);"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/investments.js"></script>
+  <script src="assets/js/utils/loans.js"></script>
+  <script src="assets/js/utils/credit-cards.js"></script>
+  <script src="assets/js/utils/moi.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/networth-history.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/utils/pdf-fonts.js"></script>
+  <script src="assets/js/utils/export.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/networth.js"></script>
+</body>
+</html>

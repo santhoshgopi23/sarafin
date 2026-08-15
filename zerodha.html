@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Zerodha · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    /* ---- Zerodha sub-tabs (Holdings / Trade Book / Dividends) ---- */
+    .zd-tabs {
+      display: flex;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-5);
+      border-bottom: 1px solid var(--color-surface-border-strong);
+      padding-bottom: 0;
+    }
+    .zd-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: var(--sp-3) var(--sp-4);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: var(--fs-sm);
+      color: var(--color-text-faint);
+    }
+    .zd-tab:hover { color: var(--color-text); }
+    .zd-tab.is-active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+    .zd-panel { display: none; }
+    .zd-panel.is-active { display: block; }
+
+    .zd-section {
+      margin-bottom: var(--sp-5);
+    }
+    .zd-section__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .zd-section__title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: var(--fs-md);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .zd-section__sub { color: var(--color-text-faint); font-size: var(--fs-xs); margin-top: 2px; }
+
+    .zd-upload {
+      cursor: pointer;
+    }
+
+    .zd-year-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+    .zd-year-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: var(--radius-md, 10px);
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border-strong);
+    }
+    .zd-year-row__label { font-weight: 700; font-family: var(--font-mono); }
+    .zd-year-row__meta { color: var(--color-text-faint); font-size: var(--fs-xs); flex: 1; }
+
+    /* ---- Name Matching rows: CSV name -> mapped holding ---- */
+    .zd-alias-row__info { flex: 1; min-width: 0; }
+    .zd-alias-row__alias { font-weight: 700; font-family: var(--font-mono); }
+    .zd-alias-row__arrow { color: var(--color-text-faint); margin: 0 6px; }
+    .zd-alias-row__holding { color: var(--color-text); }
+
+    .zd-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-4);
+      text-align: center;
+      margin-bottom: var(--sp-4);
+    }
+    .zd-stat-row strong { font-size: 1.2rem; display: block; }
+    .zd-stat-row small { color: var(--color-text-faint); }
+
+    @media (max-width: 720px) {
+      .zd-tabs { overflow-x: auto; }
+      .zd-stat-row { grid-template-columns: 1fr; gap: var(--sp-2); }
+    }
+
+    /* ---- Trade Book: filter bar (Segment / Symbol / Date range / Apply) ---- */
+    .zd-tb-filterbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .zd-tb-field { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
+    .zd-tb-field--grow { flex: 1; min-width: 200px; }
+    .zd-tb-field--range input[type="date"] { width: 132px; }
+    .zd-tb-field label { font-size: var(--fs-xs); color: var(--color-text-faint); font-weight: 600; }
+    .zd-tb-field input, .zd-tb-field select {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: var(--radius-md, 10px);
+      background: var(--color-surface-strong);
+      border: 1px solid var(--color-surface-border-strong);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--fs-sm);
+    }
+    .zd-tb-apply { height: 40px; width: 40px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    .zd-tb-viewtoggle {
+      display: flex;
+      gap: var(--sp-4);
+      align-items: center;
+      margin-bottom: var(--sp-4);
+      font-size: var(--fs-sm);
+      color: var(--color-text-faint);
+      flex-wrap: wrap;
+    }
+    .zd-tb-viewtoggle label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .zd-tb-viewtoggle input[type="radio"] { accent-color: var(--color-accent); }
+
+    /* ---- Trade Book: simple 12-box year view (one box per month) ---- */
+    .zd-heatmap12 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .zd-heatmap12__box {
+      border-radius: var(--radius-md, 10px);
+      border: 1px solid var(--color-surface-border-strong);
+      background: var(--color-surface);
+      padding: var(--sp-3) var(--sp-2);
+      text-align: center;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .12s ease;
+    }
+    .zd-heatmap12__box:hover { transform: translateY(-2px); border-color: var(--color-accent); }
+    .zd-heatmap12__box[data-level="0"] { opacity: .5; cursor: default; }
+    .zd-heatmap12__box[data-level="0"]:hover { transform: none; border-color: var(--color-surface-border-strong); }
+    .zd-heatmap12__box[data-level="1"] { background: rgba(37,99,235,.10); }
+    .zd-heatmap12__box[data-level="2"] { background: rgba(37,99,235,.22); }
+    .zd-heatmap12__box[data-level="3"] { background: rgba(37,99,235,.38); }
+    .zd-heatmap12__month { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-faint); }
+    .zd-heatmap12__count { font-size: 1.15rem; font-weight: 700; display: block; margin-top: 4px; }
+    .zd-heatmap12__amt { font-size: var(--fs-xs); color: var(--color-text-faint); }
+
+    @media (max-width: 720px) { .zd-heatmap12 { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 721px) and (max-width: 1100px) { .zd-heatmap12 { grid-template-columns: repeat(4, 1fr); } }
+
+    /* ---- Trade Book: month drill-down (day grid inside the modal) ---- */
+    .zd-monthgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .zd-monthgrid__dow { text-align: center; font-size: var(--fs-xs); color: var(--color-text-faint); font-weight: 700; padding-bottom: 4px; }
+    .zd-monthgrid__day {
+      aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-size: var(--fs-sm); border: 1px solid var(--color-surface-border-strong); background: var(--color-surface); color: var(--color-text-faint);
+    }
+    .zd-monthgrid__day--blank { border: none; background: transparent; }
+    .zd-monthgrid__day--traded { cursor: pointer; font-weight: 700; color: var(--color-text); }
+    .zd-monthgrid__day--traded[data-level="1"] { background: #93c5fd; color: #0a0f1a; }
+    .zd-monthgrid__day--traded[data-level="2"] { background: #60a5fa; color: #0a0f1a; }
+    .zd-monthgrid__day--traded[data-level="3"] { background: #2563eb; color: #fff; }
+    .zd-monthgrid__day--traded:hover { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+
+    .zd-updated { display: flex; align-items: center; gap: 6px; color: var(--color-text-faint); font-size: var(--fs-xs); margin-top: 2px; }
+
+    /* ---- Trade Book: Equity / Mutual Funds sub-tabs ---- */
+    .zd-subtabs { margin-bottom: var(--sp-4); }
+
+    /* ---- Choose Equity / Mutual Fund before uploading ---- */
+    .zd-seg-choice {
+      display: flex; align-items: center; gap: var(--sp-3); width: 100%;
+      height: 64px; padding: 0 var(--sp-4); text-align: left; justify-content: flex-start;
+    }
+    .zd-seg-choice i { font-size: 1.2rem; width: 24px; text-align: center; }
+    .zd-seg-choice .zd-seg-choice__sub { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--color-text-faint); margin-top: 2px; }
+
+    @media (max-width: 720px) {
+      .zd-tb-filterbar { align-items: stretch; }
+      .zd-tb-field { min-width: 0; flex: 1 1 45%; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Zerodha</h1>
+            <span class="topbar__date">Holdings, trade book &amp; dividends, all from Zerodha Console exports</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <a href="accounts.html" class="btn btn--ghost">
+            <i class="fa-solid fa-arrow-left"></i> Back to Assets
+          </a>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <div class="zd-tabs" role="tablist">
+          <button type="button" class="zd-tab is-active" data-zd-tab="holdings">
+            <i class="fa-solid fa-chart-pie"></i> Overall Holding
+          </button>
+          <button type="button" class="zd-tab" data-zd-tab="tradebook">
+            <i class="fa-solid fa-file-invoice"></i> Trade Book
+          </button>
+          <button type="button" class="zd-tab" data-zd-tab="dividends">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Dividends
+          </button>
+        </div>
+
+        <!-- ============ TAB 1: OVERALL HOLDING ============ -->
+        <section class="zd-panel is-active" data-zd-panel="holdings">
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-file-csv"></i> Import Holdings</div>
+                <div class="zd-section__sub">Export "Holdings" from Zerodha Console as CSV and upload it here. Every import is a full snapshot — it replaces the Zerodha holdings from your last import, but never touches anything you or another source entered manually.</div>
+              </div>
+              <label class="btn btn--primary zd-upload">
+                <i class="fa-solid fa-upload"></i> Upload Holdings CSV
+                <input type="file" accept=".csv,.txt,text/csv" data-zd-holdings-input style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div class="zd-section__title"><i class="fa-solid fa-layer-group"></i> Current Zerodha Holdings</div>
+              <span class="chip tone-info" data-zd-holdings-count>0</span>
+            </div>
+            <div class="zd-stat-row">
+              <div><strong data-zd-holdings-invested>₹0.00</strong><small>Invested</small></div>
+              <div><strong data-zd-holdings-value>₹0.00</strong><small>Current Value</small></div>
+              <div><strong data-zd-holdings-pl>₹0.00</strong><small>P&amp;L</small></div>
+            </div>
+            <div class="holdings-table-wrap">
+              <table class="data-table holdings-table">
+                <thead>
+                  <tr>
+                    <th>Holding</th>
+                    <th>Type</th>
+                    <th class="text-right">Qty.</th>
+                    <th class="text-right">Avg. Price</th>
+                    <th class="text-right">Value</th>
+                    <th class="text-right">P&amp;L</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody data-zd-holdings-body></tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ============ TAB 2: TRADE BOOK ============ -->
+        <section class="zd-panel" data-zd-panel="tradebook">
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-file-invoice"></i> Import Trade Book</div>
+                <div class="zd-section__sub">Zerodha's tradebook export is downloaded one financial year at a time. Equity and Mutual Fund trade books are kept fully separate, so you'll be asked which one you're uploading first — then pick the year and it's saved. Matched trades go to Current Trades below; trades for a holding you don't currently track are kept under Closed Trades instead of being dropped.</div>
+              </div>
+              <button type="button" class="btn btn--primary" data-zd-tradebook-upload-btn>
+                <i class="fa-solid fa-upload"></i> Upload Trade Book CSV
+              </button>
+              <input type="file" accept=".csv,.txt,text/csv" data-zd-tradebook-input-equity style="display:none;" />
+              <input type="file" accept=".csv,.txt,text/csv" data-zd-tradebook-input-mf style="display:none;" />
+            </div>
+          </div>
+
+          <!-- ============ NAME MATCHING (shared with Dividends tab) ============ -->
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-link"></i> Name Matching</div>
+                <div class="zd-section__sub">If a holding's name doesn't line up with what Zerodha calls it in this CSV (e.g. holding "PGINVIT" but the tradebook symbol is "PGINVIT-IV"), search for the holding and save the CSV name here once — future uploads will match it automatically. Shared with the Dividends tab.</div>
+              </div>
+              <button type="button" class="btn btn--primary" data-zd-alias-add>
+                <i class="fa-solid fa-plus"></i> Add Mapping
+              </button>
+            </div>
+            <div class="zd-year-list" data-zd-alias-list>
+              <div class="empty-state"><i class="fa-solid fa-link"></i> No name mappings yet.</div>
+            </div>
+          </div>
+
+          <!-- Equity / Mutual Funds are two separate trade books -->
+          <div class="zd-tabs zd-subtabs" role="tablist">
+            <button type="button" class="zd-tab is-active" data-zd-tb-seg-tab="equity">
+              <i class="fa-solid fa-chart-line"></i> Equity
+            </button>
+            <button type="button" class="zd-tab" data-zd-tb-seg-tab="mf">
+              <i class="fa-solid fa-sitemap"></i> Mutual Funds
+            </button>
+          </div>
+
+          <div data-zd-tb-seg-panel="equity"></div>
+          <div data-zd-tb-seg-panel="mf" style="display:none;"></div>
+
+        </section>
+
+        <!-- ============ TAB 3: DIVIDENDS ============ -->
+        <section class="zd-panel" data-zd-panel="dividends">
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-hand-holding-dollar"></i> Import Dividends</div>
+                <div class="zd-section__sub">Also downloaded one financial year at a time. Payouts matched to a holding you still own are saved normally; payouts for stocks you no longer hold land in Closed Positions below instead of being dropped.</div>
+              </div>
+              <label class="btn btn--primary zd-upload">
+                <i class="fa-solid fa-upload"></i> Upload Dividends CSV
+                <input type="file" accept=".csv,.txt,text/csv" data-zd-dividend-input style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <!-- ============ NAME MATCHING (shared with Trade Book tab) ============ -->
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-link"></i> Name Matching</div>
+                <div class="zd-section__sub">If a holding's name doesn't line up with what Zerodha calls it in this CSV (e.g. holding "PGINVIT" but the dividend symbol is "PGINVIT-IV"), search for the holding and save the CSV name here once — future uploads will match it automatically. Shared with the Trade Book tab.</div>
+              </div>
+              <button type="button" class="btn btn--primary" data-zd-alias-add>
+                <i class="fa-solid fa-plus"></i> Add Mapping
+              </button>
+            </div>
+            <div class="zd-year-list" data-zd-alias-list>
+              <div class="empty-state"><i class="fa-solid fa-link"></i> No name mappings yet.</div>
+            </div>
+          </div>
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div class="zd-section__title"><i class="fa-solid fa-calendar-days"></i> Dividends By Year</div>
+            </div>
+            <div class="zd-year-list" data-zd-dividend-years>
+              <div class="empty-state"><i class="fa-solid fa-hand-holding-dollar"></i> No dividends imported yet.</div>
+            </div>
+          </div>
+
+          <div class="glass card chart-panel zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div class="zd-section__title"><i class="fa-solid fa-chart-column"></i> Dividend Chart</div>
+              <div style="display:flex; align-items:center; gap: var(--sp-2);">
+                <select data-zd-dividend-chart-year style="display:none;"></select>
+                <div class="zd-tabs" style="margin:0; border-bottom:none; gap: 4px;">
+                  <button type="button" class="zd-tab is-active" data-zd-chart-granularity="year">Year</button>
+                  <button type="button" class="zd-tab" data-zd-chart-granularity="month">Month</button>
+                </div>
+              </div>
+            </div>
+            <div class="chart-panel__canvas-wrap" style="height:280px;">
+              <canvas id="zdDividendChart"></canvas>
+            </div>
+          </div>
+
+          <div class="glass card zd-section" style="padding: var(--sp-5);">
+            <div class="zd-section__head">
+              <div>
+                <div class="zd-section__title"><i class="fa-solid fa-box-archive"></i> Closed Positions</div>
+                <span class="zd-section__sub">Dividends for stocks no longer in your holdings — click "Show History" on a stock to see its dates</span>
+              </div>
+            </div>
+            <div data-zd-closed-positions></div>
+          </div>
+
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ HOLDINGS IMPORT PREVIEW ============ -->
+  <div class="modal-backdrop" id="zdHoldingsModal">
+    <div class="view-page__container view-page__container--wide">
+      <div class="view-page__header">
+        <div>
+          <h1>Holdings Import — Preview</h1>
+          <p>Review what will change before saving.</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </button>
+      </div>
+      <div class="modal">
+        <div data-zd-holdings-preview-body style="display:flex; flex-direction:column; gap: var(--sp-3);"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn--primary" data-zd-holdings-confirm>
+            <i class="fa-solid fa-check"></i> Save Holdings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CHOOSE EQUITY OR MUTUAL FUND BEFORE UPLOAD ============ -->
+  <div class="modal-backdrop" id="zdSegmentChooseModal">
+    <div class="view-page__container" style="max-width: 460px;">
+      <div class="view-page__header">
+        <div>
+          <h1>Which trade book?</h1>
+          <p>Equity and Mutual Fund trades are saved separately.</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </button>
+      </div>
+      <div class="modal">
+        <div style="display:flex; flex-direction:column; gap: var(--sp-3);">
+          <button type="button" class="btn btn--primary zd-seg-choice" data-zd-choose-seg="equity">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Equity Trade Book<span class="zd-seg-choice__sub">Stocks / ETFs exported from Zerodha Console</span></span>
+          </button>
+          <button type="button" class="btn btn--ghost zd-seg-choice" data-zd-choose-seg="mf">
+            <i class="fa-solid fa-sitemap"></i>
+            <span>Mutual Fund Trade Book<span class="zd-seg-choice__sub">Exported from Zerodha Coin</span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TRADE BOOK IMPORT PREVIEW ============ -->
+  <div class="modal-backdrop" id="zdTradebookModal">
+    <div class="view-page__container view-page__container--wide">
+      <div class="view-page__header">
+        <div>
+          <h1 data-zd-tradebook-modal-title>Trade Book Import — Preview</h1>
+          <p>Tradebook exports are one financial year at a time — pick the year to save.</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </button>
+      </div>
+      <div class="modal">
+        <div class="field" style="max-width:220px;">
+          <label>Year</label>
+          <select data-zd-tradebook-year></select>
+        </div>
+        <div data-zd-tradebook-preview-body style="display:flex; flex-direction:column; gap: var(--sp-3); margin-top: var(--sp-3);"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn--primary" data-zd-tradebook-confirm>
+            <i class="fa-solid fa-check"></i> Save Trade Book
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MONTH DRILL-DOWN — DAYS IN THE MONTH ============ -->
+  <div class="modal-backdrop" id="zdMonthModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-zd-month-title>Month</h1>
+          <p data-zd-month-sub></p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Close
+        </button>
+      </div>
+      <div class="modal">
+        <div class="zd-monthgrid" data-zd-month-grid></div>
+        <div class="empty-state" data-zd-month-empty style="display:none;"><i class="fa-solid fa-calendar"></i> No trades this month.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TRADE ACTIVITY — TRADES FOR A DAY ============ -->
+  <div class="modal-backdrop" id="zdTradePeriodModal">
+    <div class="view-page__container view-page__container--wide">
+      <div class="view-page__header">
+        <div>
+          <h1 data-zd-trade-period-title>Trades</h1>
+          <p data-zd-trade-period-sub></p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Close
+        </button>
+      </div>
+      <div class="modal">
+        <div data-zd-trade-period-body></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DIVIDENDS IMPORT PREVIEW ============ -->
+  <div class="modal-backdrop" id="zdDividendModal">
+    <div class="view-page__container view-page__container--wide">
+      <div class="view-page__header">
+        <div>
+          <h1>Dividends Import — Preview</h1>
+          <p>Dividend exports are one financial year at a time — pick the year to save.</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </button>
+      </div>
+      <div class="modal">
+        <div class="field" style="max-width:220px;">
+          <label>Year</label>
+          <select data-zd-dividend-year></select>
+        </div>
+        <div data-zd-dividend-preview-body style="display:flex; flex-direction:column; gap: var(--sp-3); margin-top: var(--sp-3);"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn--primary" data-zd-dividend-confirm>
+            <i class="fa-solid fa-check"></i> Save Dividends
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ NAME MAPPING — ADD / EDIT ============ -->
+  <div class="modal-backdrop" id="zdAliasModal">
+    <div class="view-page__container" style="max-width: 480px;">
+      <div class="view-page__header">
+        <div>
+          <h1 data-zd-alias-modal-title>Add Name Mapping</h1>
+          <p>Match a Zerodha CSV name to one of your holdings.</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </button>
+      </div>
+      <div class="modal">
+        <div class="field">
+          <label>Holding</label>
+          <input type="text" class="search" placeholder="Type 3+ letters to search your holdings…" data-zd-alias-holding-search autocomplete="off" />
+          <select data-zd-alias-holding-select style="margin-top:8px;">
+            <option value="">Select a holding…</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Name in the Trade Book / Dividends CSV</label>
+          <input type="text" data-zd-alias-input placeholder="e.g. PGINVIT-IV" autocomplete="off" />
+          <small>Exactly as it appears in the "symbol" column of the export.</small>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn--primary" data-zd-alias-save>
+            <i class="fa-solid fa-check"></i> Save Mapping
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/investments.js"></script>
+  <script src="assets/js/utils/zerodha-import.js"></script>
+  <script src="assets/js/utils/zerodha-tradebook-import.js"></script>
+  <script src="assets/js/utils/zerodha-dividend-import.js"></script>
+  <script src="assets/js/utils/zerodha-symbol-aliases.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/zerodha.js"></script>
+</body>
+</html>

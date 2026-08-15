@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Calculators · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Calculators</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <div class="calc-tabs stagger-in">
+          <button class="calc-tab is-active" data-calc-tab="sip"><i class="fa-solid fa-seedling"></i> SIP</button>
+          <button class="calc-tab" data-calc-tab="lumpsum"><i class="fa-solid fa-coins"></i> Lumpsum</button>
+          <button class="calc-tab" data-calc-tab="fd"><i class="fa-solid fa-piggy-bank"></i> Fixed Deposit</button>
+          <button class="calc-tab" data-calc-tab="emi"><i class="fa-solid fa-hand-holding-dollar"></i> Loan EMI</button>
+          <button class="calc-tab" data-calc-tab="cagr"><i class="fa-solid fa-chart-line"></i> CAGR</button>
+          <button class="calc-tab" data-calc-tab="emergency"><i class="fa-solid fa-shield-heart"></i> Emergency Fund</button>
+        </div>
+
+        <!-- ============ SIP CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel is-active" data-calc-panel="sip">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">SIP Calculator</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-seedling"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">Estimate how a monthly investment grows over time.</p>
+
+            <div class="field">
+              <label for="sipAmount">Monthly Investment</label>
+              <div class="range-row">
+                <input type="range" id="sipAmountRange" min="500" max="200000" step="500" value="10000" />
+                <input type="number" id="sipAmount" min="0" value="10000" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="sipReturn">Expected Annual Return (%)</label>
+              <div class="range-row">
+                <input type="range" id="sipReturnRange" min="1" max="30" step="0.5" value="12" />
+                <input type="number" id="sipReturn" min="0" step="0.1" value="12" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="sipYears">Time Period (years)</label>
+              <div class="range-row">
+                <input type="range" id="sipYearsRange" min="1" max="40" step="1" value="10" />
+                <input type="number" id="sipYears" min="1" value="10" />
+              </div>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">Maturity Value</span>
+              <div class="calc-result-hero__value" data-sip-maturity>$0.00</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Total Invested</span><span data-sip-invested>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Wealth Gained</span><span data-sip-gain style="color: var(--color-accent);">$0.00</span></div>
+            </div>
+            <div class="chart-panel__canvas-wrap" style="height:180px; margin-top: var(--sp-3);">
+              <canvas id="sipChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ LUMPSUM CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel" data-calc-panel="lumpsum">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Lumpsum Calculator</h3>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-coins"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">Estimate the growth of a one-time investment.</p>
+
+            <div class="field">
+              <label for="lumpAmount">Investment Amount</label>
+              <div class="range-row">
+                <input type="range" id="lumpAmountRange" min="1000" max="5000000" step="1000" value="100000" />
+                <input type="number" id="lumpAmount" min="0" value="100000" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="lumpReturn">Expected Annual Return (%)</label>
+              <div class="range-row">
+                <input type="range" id="lumpReturnRange" min="1" max="30" step="0.5" value="12" />
+                <input type="number" id="lumpReturn" min="0" step="0.1" value="12" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="lumpYears">Time Period (years)</label>
+              <div class="range-row">
+                <input type="range" id="lumpYearsRange" min="1" max="40" step="1" value="10" />
+                <input type="number" id="lumpYears" min="1" value="10" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="lumpCompound">Compounding Frequency</label>
+              <select id="lumpCompound">
+                <option value="1">Annually</option>
+                <option value="2">Semi-Annually</option>
+                <option value="4">Quarterly</option>
+                <option value="12" selected>Monthly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">Maturity Value</span>
+              <div class="calc-result-hero__value" data-lump-maturity>$0.00</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Invested Amount</span><span data-lump-invested>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Wealth Gained</span><span data-lump-gain style="color: var(--color-accent);">$0.00</span></div>
+            </div>
+            <div class="chart-panel__canvas-wrap" style="height:180px; margin-top: var(--sp-3);">
+              <canvas id="lumpChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ FD CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel" data-calc-panel="fd">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Fixed Deposit Calculator</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-piggy-bank"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">Estimate the maturity value of a fixed deposit.</p>
+
+            <div class="field">
+              <label for="fdAmount">Deposit Amount</label>
+              <div class="range-row">
+                <input type="range" id="fdAmountRange" min="1000" max="2000000" step="1000" value="100000" />
+                <input type="number" id="fdAmount" min="0" value="100000" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="fdReturn">Annual Interest Rate (%)</label>
+              <div class="range-row">
+                <input type="range" id="fdReturnRange" min="1" max="15" step="0.1" value="7" />
+                <input type="number" id="fdReturn" min="0" step="0.1" value="7" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="fdYears">Tenure (years)</label>
+              <div class="range-row">
+                <input type="range" id="fdYearsRange" min="0.25" max="20" step="0.25" value="5" />
+                <input type="number" id="fdYears" min="0.25" step="0.25" value="5" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="fdCompound">Compounding Frequency</label>
+              <select id="fdCompound">
+                <option value="1">Annually</option>
+                <option value="2">Half-Yearly</option>
+                <option value="4" selected>Quarterly</option>
+                <option value="12">Monthly</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">Maturity Value</span>
+              <div class="calc-result-hero__value" data-fd-maturity>$0.00</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Principal</span><span data-fd-principal>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Interest Earned</span><span data-fd-interest style="color: var(--color-accent);">$0.00</span></div>
+            </div>
+            <div class="chart-panel__canvas-wrap" style="height:180px; margin-top: var(--sp-3);">
+              <canvas id="fdChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ EMI CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel" data-calc-panel="emi">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Loan EMI Calculator</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">Estimate your monthly installment on a loan.</p>
+
+            <div class="field">
+              <label for="emiAmount">Loan Amount</label>
+              <div class="range-row">
+                <input type="range" id="emiAmountRange" min="1000" max="2000000" step="1000" value="200000" />
+                <input type="number" id="emiAmount" min="0" value="200000" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="emiReturn">Annual Interest Rate (%)</label>
+              <div class="range-row">
+                <input type="range" id="emiReturnRange" min="1" max="24" step="0.1" value="9" />
+                <input type="number" id="emiReturn" min="0" step="0.1" value="9" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="emiYears">Loan Tenure (years)</label>
+              <div class="range-row">
+                <input type="range" id="emiYearsRange" min="1" max="30" step="1" value="5" />
+                <input type="number" id="emiYears" min="1" value="5" />
+              </div>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">Monthly EMI</span>
+              <div class="calc-result-hero__value" data-emi-value>$0.00</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Principal Amount</span><span data-emi-principal>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Total Interest</span><span data-emi-interest style="color: var(--color-negative);">$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Total Payment</span><span data-emi-total>$0.00</span></div>
+            </div>
+            <div class="chart-panel__canvas-wrap" style="height:180px; margin-top: var(--sp-3);">
+              <canvas id="emiChart"></canvas>
+            </div>
+            <div class="legend-inline" data-emi-legend></div>
+          </div>
+        </section>
+
+        <!-- ============ CAGR CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel" data-calc-panel="cagr">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">CAGR Calculator</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">Find the compound annual growth rate between two values.</p>
+
+            <div class="field">
+              <label for="cagrInitial">Initial Value</label>
+              <input type="number" id="cagrInitial" min="0" value="100000" />
+            </div>
+            <div class="field">
+              <label for="cagrFinal">Final Value</label>
+              <input type="number" id="cagrFinal" min="0" value="180000" />
+            </div>
+            <div class="field">
+              <label for="cagrYears">Time Period (years)</label>
+              <input type="number" id="cagrYears" min="0.1" step="0.1" value="5" />
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">CAGR</span>
+              <div class="calc-result-hero__value" data-cagr-value>0.00%</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Initial Value</span><span data-cagr-initial>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Final Value</span><span data-cagr-final>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Absolute Growth</span><span data-cagr-growth>$0.00</span></div>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: var(--sp-3); line-height:1.5;">
+              CAGR smooths out year-to-year swings into one steady annual growth rate — handy for comparing investments held over different time periods.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============ EMERGENCY FUND CALCULATOR ============ -->
+        <section class="grid-two stagger-in calc-panel" data-calc-panel="emergency">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Emergency Fund Calculator</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-shield-heart"></i></span>
+            </div>
+            <p style="font-size: var(--fs-xs); color: var(--color-text-faint); margin: -6px 0 var(--sp-3);">How much of a safety net should you keep on hand?</p>
+
+            <div class="field">
+              <label for="efExpenses">Essential Monthly Expenses</label>
+              <input type="number" id="efExpenses" min="0" value="2000" />
+              <small class="field-hint" data-ef-expense-hint></small>
+            </div>
+            <div class="field">
+              <label for="efMonths">Months of Cover</label>
+              <div class="range-row">
+                <input type="range" id="efMonthsRange" min="1" max="12" step="1" value="6" />
+                <input type="number" id="efMonths" min="1" max="24" value="6" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="efSavings">Current Emergency Savings</label>
+              <input type="number" id="efSavings" min="0" value="0" />
+              <small class="field-hint" data-ef-savings-hint></small>
+            </div>
+          </div>
+
+          <div class="glass card">
+            <div class="calc-result-hero">
+              <span class="calc-result-hero__label">Target Emergency Fund</span>
+              <div class="calc-result-hero__value" data-ef-target>$0.00</div>
+            </div>
+            <div class="split-bar">
+              <div class="split-bar__seg split-bar__seg--assets" data-ef-bar-covered style="width:0%;"></div>
+              <div class="split-bar__seg" data-ef-bar-remaining style="width:100%; background: var(--color-surface-border-strong);"></div>
+            </div>
+            <div class="split-bar__labels">
+              <span>Saved so far</span>
+              <span data-ef-percent>0%</span>
+            </div>
+            <div class="calc-breakdown">
+              <div class="calc-breakdown__row"><span>Current Savings</span><span data-ef-current>$0.00</span></div>
+              <div class="calc-breakdown__row"><span>Remaining to Save</span><span data-ef-shortfall>$0.00</span></div>
+            </div>
+            <div class="calc-verdict" data-ef-verdict></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/calculators.js"></script>
+</body>
+</html>

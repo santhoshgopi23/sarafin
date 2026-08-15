@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Assets · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .asset-section {
+      margin-top: var(--sp-5);
+    }
+    .asset-section:first-of-type {
+      margin-top: 0;
+    }
+
+    /* ---- Total Assets summary ---- */
+    .asset-summary__label {
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      margin: 0 0 6px;
+    }
+
+    /* ---- Grouped accordion list ---- */
+    .asset-groups { display: flex; flex-direction: column; gap: var(--sp-4); }
+    .asset-group { padding: 0; overflow: hidden; }
+    .asset-group__header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-4) var(--sp-5);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+    }
+    .asset-group__header:hover { background: var(--color-surface-strong); }
+    .asset-group__chevron { color: var(--color-text-faint); transition: transform 0.2s ease; width: 14px; flex-shrink: 0; }
+    .asset-group__header.is-collapsed .asset-group__chevron { transform: rotate(-90deg); }
+    .asset-group__icon { width: 32px; height: 32px; flex-shrink: 0; font-size: 13px; }
+    .asset-group__title { font-weight: 700; font-size: var(--fs-sm); }
+    .asset-group__count { font-size: 11px; padding: 2px 8px; }
+    .asset-group__spacer { flex: 1; }
+    .asset-group__totals { text-align: right; display: flex; align-items: baseline; gap: var(--sp-2); }
+    .asset-group__totals .num { font-weight: 700; font-size: var(--fs-sm); }
+    .asset-group__body { border-top: 1px solid var(--color-surface-border-strong); }
+    .asset-group__filterbar { padding: var(--sp-3) var(--sp-5) 0; }
+    .asset-group__filterbar .search { flex: 1; min-width: 160px; height: 38px; }
+    .asset-group__filterbar select { height: 38px; font-size: var(--fs-xs); min-width: 130px; }
+    .asset-group__customrange { display: flex; align-items: center; gap: var(--sp-2); }
+    .asset-group__customrange input[type="date"] { height: 38px; font-size: var(--fs-xs); min-width: 130px; }
+    .asset-group__customrange-sep { font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .asset-group__no-match { padding: var(--sp-4) var(--sp-5); }
+
+    .asset-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 90px 150px 20px;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-5);
+      cursor: pointer;
+      border-top: 1px solid var(--color-surface-border-strong);
+    }
+    .asset-row:first-child { border-top: none; }
+    .asset-row:hover { background: var(--color-surface-strong); }
+    .asset-row__title { font-weight: 600; font-size: var(--fs-sm); }
+    .asset-row__sub { font-size: 11px; color: var(--color-text-faint); margin-left: 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .zd-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--color-info, #3b82f6);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .asset-row__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--color-text-faint);
+    }
+    .asset-row__meta span { white-space: nowrap; }
+    .asset-row__period-note {
+      white-space: nowrap;
+      color: var(--color-accent, #d9a441);
+      font-weight: 600;
+      font-style: italic;
+    }
+    .asset-row__type { font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .asset-row__alloc { font-size: var(--fs-xs); color: var(--color-text-muted); text-align: right; }
+    .asset-row__value { text-align: right; }
+    .asset-row__value .num { font-weight: 600; font-size: var(--fs-sm); display: block; }
+    .asset-row__pl { font-size: 11px; }
+    .asset-row__chevron { color: var(--color-text-faint); font-size: 12px; text-align: right; }
+    .asset-group__footer-total {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: var(--sp-3) var(--sp-5); border-top: 1px solid var(--color-surface-border-strong);
+      background: var(--color-surface-strong);
+    }
+    .asset-group__footer-total-label { font-weight: 700; font-size: var(--fs-sm); }
+    .asset-group__footer-total-value { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+    .asset-group__footer-total-value .num { font-weight: 700; font-size: var(--fs-sm); }
+    .asset-group__footer-total-value .asset-row__pl { font-size: 12px; font-weight: 600; }
+    .positive { color: var(--color-profit, var(--color-accent)); }
+    .negative { color: var(--color-negative); }
+
+    @media (max-width: 720px) {
+      .asset-row { grid-template-columns: 1fr 100px 20px; }
+      .asset-row__type, .asset-row__alloc { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Assets</h1>
+            <span class="topbar__date" data-assets-count>Loading…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <!-- Export dropdown: detailed per-holding report (CSV/PDF), not transaction history -->
+          <div id="investmentsExportContainer"></div>
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="btn btn--ghost" data-transfer-btn>
+            <i class="fa-solid fa-right-left"></i> Transfer
+          </button>
+          <button class="btn btn--ghost" data-refresh-prices-btn>
+            <i class="fa-solid fa-rotate"></i> Refresh Prices
+          </button>
+          <a href="zerodha.html" class="btn btn--ghost">
+            <i class="fa-solid fa-bolt"></i> Zerodha
+          </a>
+          <button class="btn btn--primary" data-add-investment-btn>
+            <i class="fa-solid fa-plus"></i> Add Asset
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Period-filtered investments banner: appears only when arriving
+             from Reports with a selected month/period (?from=&to=), listing
+             every purchase made in that window from actual buy history. -->
+        <section class="glass card asset-section stagger-in" id="periodInvestmentsSection" style="display:none;">
+          <div class="card__header">
+            <div>
+              <h3 class="card__title">Investments Made <span data-period-investments-range></span></h3>
+              <p class="chart-panel__sub" data-period-investments-sub></p>
+            </div>
+            <a href="accounts.html" class="btn btn--ghost" style="font-size:12px; padding:6px 12px;"><i class="fa-solid fa-xmark"></i> Clear filter</a>
+          </div>
+          <div data-period-investments-list style="margin-top: var(--sp-2);"></div>
+        </section>
+
+        <!-- Total Assets summary -->
+        <section class="glass card stagger-in" style="padding: var(--sp-5);">
+          <p class="asset-summary__label" style="margin-bottom: var(--sp-4);">Total Assets</p>
+          <div class="asset-summary__grid">
+            <div>
+              <p class="asset-summary__label">Invested</p>
+              <div class="stat-card__value num" data-assets-total-invested>$0.00</div>
+            </div>
+            <div>
+              <p class="asset-summary__label">Current Value</p>
+              <div class="stat-card__value num" data-assets-total-value>$0.00</div>
+            </div>
+            <div>
+              <p class="asset-summary__label">P&amp;L</p>
+              <div style="display:flex; align-items:baseline; gap: var(--sp-2);">
+                <div class="stat-card__value num" data-assets-total-pl>$0.00</div>
+                <span class="chip" data-assets-total-pl-pct style="font-size:11px;"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Grouped asset list -->
+        <section class="asset-groups asset-section stagger-in" data-asset-groups></section>
+
+        <!-- Investment Growth: net capital invested over time, from actual
+             buy/sell lot history (buys add, sells subtract) — principal
+             only, no returns included. -->
+        <section class="glass card chart-panel asset-section stagger-in">
+          <div class="card__header">
+            <div>
+              <h3 class="card__title">Investment Growth</h3>
+              <p class="chart-panel__sub" data-investment-growth-sub>How much capital you have in the market over time — buys add, sells subtract. Amount only, returns not included.</p>
+            </div>
+            <span class="chip tone-violet card__icon"><i class="fa-solid fa-seedling"></i></span>
+          </div>
+          <div class="chart-panel__canvas-wrap">
+            <canvas id="investmentGrowthChart"></canvas>
+          </div>
+        </section>
+
+        <!-- ============ DIVIDENDS SECTION ============ -->
+        <section class="glass card asset-section stagger-in" style="padding:0; overflow:hidden;">
+          <button type="button" class="asset-group__header is-collapsed" data-collapse-toggle="dividends">
+            <i class="fa-solid fa-chevron-down asset-group__chevron"></i>
+            <span class="chip tone-accent asset-group__icon"><i class="fa-solid fa-sack-dollar"></i></span>
+            <span class="asset-group__title">Dividends</span>
+            <span class="chip tone-accent asset-group__count" data-dividend-count>0</span>
+            <span class="asset-group__spacer"></span>
+            <span class="asset-group__totals">
+              <span class="num" data-dividend-total>$0.00</span>
+            </span>
+          </button>
+
+          <div data-collapse-body="dividends" style="display:none; border-top:1px solid var(--color-surface-border-strong);">
+            <div style="padding: var(--sp-4) var(--sp-5);">
+
+              <div class="field-row" style="text-align:center; margin-bottom: var(--sp-4);">
+                <div class="field"><strong style="font-size:1.2rem;" data-dividend-month>$0.00</strong><br><small>This Month</small></div>
+                <div class="field"><strong style="font-size:1.2rem;" data-dividend-year>$0.00</strong><br><small>This Year</small></div>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; margin-bottom: var(--sp-3);">
+                <button type="button" class="btn btn--primary" data-add-dividend-btn>
+                  <i class="fa-solid fa-plus"></i> Add Dividend
+                </button>
+              </div>
+
+              <div class="field-row" style="margin-bottom: var(--sp-3);">
+                <div class="field">
+                  <label>Search</label>
+                  <input type="text" placeholder="Search by holding or notes…" data-dividends-search />
+                </div>
+                <div class="field">
+                  <label>Asset Type</label>
+                  <select data-dividends-filter-type>
+                    <option value="all">All Types</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Date</label>
+                  <select data-dividends-filter-date>
+                    <option value="all">Lifetime</option>
+                    <option value="today">Today</option>
+                    <option value="week">Last 7 Days</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Sort</label>
+                  <select data-dividends-sort>
+                    <option value="date-desc">Most Recent</option>
+                    <option value="amount-desc">Highest Amount</option>
+                    <option value="amount-asc">Lowest Amount</option>
+                    <option value="quantity-desc">Highest Quantity</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-row" style="margin-bottom: var(--sp-3);">
+                <div class="field">
+                  <label>From</label>
+                  <input type="date" data-dividends-filter-date-from style="display:none;" />
+                </div>
+                <div class="field">
+                  <label>To</label>
+                  <input type="date" data-dividends-filter-date-to style="display:none;" />
+                </div>
+              </div>
+
+              <div class="holdings-table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Holding</th>
+                      <th class="text-right">Total Dividend</th>
+                      <th>Last Payment</th>
+                      <th>Payments</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody data-dividends-body></tbody>
+                  <tfoot data-dividends-footer></tfoot>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Moi Given (awaiting return) — last asset entry point on the page,
+             opens the Moi page as its own section. -->
+        <a href="moi.html?tab=given" class="glass card card--interactive moi-entry-card asset-section stagger-in" style="display:flex; align-items:center; justify-content:space-between; gap: var(--sp-4); text-decoration:none; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap: var(--sp-3);">
+            <span class="chip tone-gold" style="width:42px;height:42px;"><i class="fa-solid fa-hand-holding-heart"></i></span>
+            <div>
+              <h3 style="margin:0 0 2px; font-size: var(--fs-md);">Moi Given</h3>
+              <span style="font-size: var(--fs-xs); color: var(--color-text-faint);" data-moi-asset-sub>Moi given at functions, awaiting return</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="stat-card__value num" style="font-size: var(--fs-lg);" data-moi-asset-total>₹0</div>
+            <span style="font-size: var(--fs-xs); color: var(--color-text-faint);">Tap to open <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i></span>
+          </div>
+        </a>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT ACCOUNT PAGE ============ -->
+  <div class="modal-backdrop" id="accountModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>Add Account</h1>
+          <p>Track a cash, bank, or wallet balance</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <form class="modal" data-account-form novalidate>
+      <div class="field">
+        <label for="acctName">Account Name</label>
+        <input id="acctName" type="text" placeholder="e.g. Everyday Checking" data-form-name required />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="acctType">Type</label>
+          <select id="acctType" data-form-type>
+            <option value="cash">Cash</option>
+            <option value="checking">Current Account</option>
+            <option value="savings">Savings Account</option>
+            <option value="wallet">Wallet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="acctBalance">Balance</label>
+          <input id="acctBalance" type="number" step="0.01" placeholder="0.00" data-form-balance required />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" style="color: var(--color-negative); margin-right: auto;" data-account-delete-btn hidden><i class="fa-solid fa-trash"></i> Delete</button>
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Account</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ TRANSFER MONEY PAGE ============ -->
+  <div class="modal-backdrop" id="transferModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>Transfer Money</h1>
+          <p>Move money between your own accounts</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <form class="modal" data-transfer-form novalidate>
+      <div class="field">
+        <label for="transferFrom">From</label>
+        <select id="transferFrom" data-transfer-from></select>
+      </div>
+
+      <div class="field">
+        <label for="transferTo">To</label>
+        <select id="transferTo" data-transfer-to></select>
+      </div>
+
+      <div class="field">
+        <label for="transferAmount">Amount</label>
+        <input id="transferAmount" type="number" step="0.01" min="0.01" placeholder="0.00" data-transfer-amount required />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-right-left"></i> Transfer</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT ASSET PAGE ============ -->
+  <div class="modal-backdrop" id="investmentModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>Add Asset</h1>
+          <p>Track any investment, deposit, or holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <form class="modal" data-investment-form novalidate>
+      <!-- STEP 1: pick a top-level category -->
+      <div data-inv-step="category">
+        <p class="type-step-label">Step 1: Select asset category</p>
+        <div class="type-grid" data-inv-category-grid></div>
+      </div>
+
+      <!-- STEP 2 (Debt only): pick a subcategory -->
+      <div data-inv-step="subcategory" hidden>
+        <button type="button" class="type-modal-back" data-inv-back-to-category>
+          <i class="fa-solid fa-chevron-left"></i> All categories
+        </button>
+        <p class="type-step-label" data-inv-subcategory-heading>Debt</p>
+        <div class="type-grid" data-inv-subcategory-grid></div>
+      </div>
+
+      <!-- STEP 3: pick the specific type within that category/subcategory -->
+      <div data-inv-step="subtype" hidden>
+        <button type="button" class="type-modal-back" data-inv-back-to-subcategory>
+          <i class="fa-solid fa-chevron-left"></i> Back
+        </button>
+        <p class="type-step-label" data-inv-subtype-heading>Equity</p>
+        <div class="subtype-grid" data-inv-subtype-grid></div>
+      </div>
+
+      <!-- STEP: quick Moi Given entry — saved straight to Moi storage, no navigation to the Moi page -->
+      <div data-inv-step="moi" hidden>
+        <button type="button" class="type-modal-back" data-inv-back-to-category>
+          <i class="fa-solid fa-chevron-left"></i> All categories
+        </button>
+        <p class="type-step-label">Moi Given</p>
+        <p style="margin-top:-8px; margin-bottom: var(--sp-3); color:var(--color-text-faint); font-size: var(--fs-xs);">Moi given at someone else's function, awaiting return</p>
+
+        <div class="field moi-suggest-wrap">
+          <label for="invMoiName">Name</label>
+          <input id="invMoiName" type="text" placeholder="Who did you give it to?" data-form-moi-name autocomplete="off" required />
+          <ul class="moi-suggest-list" data-moi-name-suggestions></ul>
+        </div>
+
+        <div class="field moi-suggest-wrap">
+          <label for="invMoiVillage">Village</label>
+          <input id="invMoiVillage" type="text" placeholder="Optional" data-form-moi-village autocomplete="off" />
+          <ul class="moi-suggest-list" data-moi-village-suggestions></ul>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="invMoiAmount">Amount (₹)</label>
+            <input id="invMoiAmount" type="number" step="0.01" min="0.01" placeholder="0.00" data-form-moi-amount required />
+          </div>
+          <div class="field">
+            <label for="invMoiDate">Date</label>
+            <input id="invMoiDate" type="date" data-form-moi-date required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="invMoiFunction">Function</label>
+          <select id="invMoiFunction" data-form-moi-function></select>
+        </div>
+
+        <div class="field" data-inv-moi-custom-function-field style="display:none;">
+          <label for="invMoiFunctionCustom">Specify function</label>
+          <input id="invMoiFunctionCustom" type="text" data-form-moi-function-custom placeholder="e.g. Housewarming" />
+        </div>
+
+        <div class="field">
+          <label for="invMoiNotes">Notes</label>
+          <textarea id="invMoiNotes" data-form-moi-notes placeholder="Optional"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn--primary" data-inv-moi-save><i class="fa-solid fa-check"></i> Save Moi Entry</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: investment details (existing form fields, shown once a type is picked) -->
+      <div data-inv-step="details" hidden>
+        <button type="button" class="type-modal-back" data-inv-back-to-subtype>
+          <i class="fa-solid fa-chevron-left"></i> Change type
+        </button>
+
+      <div class="field">
+        <label for="invName">Name</label>
+        <input id="invName" type="text" placeholder="e.g. S&P 500 Index Fund" data-form-name required />
+      </div>
+
+      <div class="field">
+        <label for="invDate">Investment Date</label>
+        <input id="invDate" type="date" data-form-date required />
+      </div>
+
+      <input type="hidden" id="invType" data-form-type value="" />
+
+      <div class="field" data-stock-live-toggle-wrap style="display:none;">
+        <label style="display:flex; align-items:center; gap: var(--sp-2); cursor:pointer;">
+          <input type="checkbox" data-form-live-toggle style="width:auto;" />
+          Link to a live NSE/BSE price
+        </label>
+      </div>
+
+      <div data-stock-live-fields style="display:none;">
+        <div class="field" style="position:relative;">
+          <label for="invSymbolSearch">Search Indian stock (NSE/BSE)</label>
+          <input id="invSymbolSearch" type="text" placeholder="e.g. Reliance, TCS, HDFC Bank" data-form-symbol-search autocomplete="off" />
+          <ul data-symbol-results style="list-style:none; margin:4px 0 0; padding:0; position:absolute; top:100%; left:0; right:0; z-index:20; background:var(--color-surface, #1c1c22); border:1px solid var(--color-border, #333); border-radius:8px; max-height:180px; overflow-y:auto; display:none;"></ul>
+          <small data-market-provider-note style="display:block; margin-top:4px;"></small>
+        </div>
+        <div class="field" data-selected-symbol-wrap style="display:none;">
+          <small>Linked: <strong data-selected-symbol-label></strong> · Last price <span data-selected-symbol-price>—</span></small>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="invQuantity">Quantity / Shares</label>
+            <input id="invQuantity" type="number" step="any" min="0" placeholder="0" data-form-quantity />
+          </div>
+          <div class="field">
+            <label for="invAvgPrice">Avg. Buy Price (₹/share)</label>
+            <input id="invAvgPrice" type="number" step="0.01" min="0" placeholder="0.00" data-form-avgprice />
+          </div>
+        </div>
+        <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);">Current Value and Cost Basis below will be calculated automatically from the live price.</small>
+      </div>
+
+      <!-- Purity, for physical/digital gold & silver only -->
+      <div class="field" data-purity-field style="display:none;">
+        <label for="invPurity" data-purity-label>Purity</label>
+        <select id="invPurity" data-form-purity></select>
+      </div>
+
+      <!-- Generic quantity & price tracking, for anything not live-linked (mutual funds, ETFs, gold, crypto, manually-priced stocks, etc.) -->
+      <div class="field" data-gen-qty-toggle-wrap>
+        <label style="display:flex; align-items:center; gap: var(--sp-2); cursor:pointer;">
+          <input type="checkbox" data-form-gen-qty-toggle style="width:auto;" checked />
+          <span data-gen-qty-toggle-label>Track by quantity &amp; price per unit</span>
+        </label>
+      </div>
+
+      <div data-gen-qty-fields>
+        <div class="field-row">
+          <div class="field">
+            <label for="invGenQuantity" data-gen-qty-label>Quantity / Units</label>
+            <input id="invGenQuantity" type="number" step="any" min="0" placeholder="0" data-form-gen-quantity />
+          </div>
+          <div class="field">
+            <label for="invGenAvgPrice" data-gen-price-label>Buy Price (per unit)</label>
+            <input id="invGenAvgPrice" type="number" step="0.01" min="0" placeholder="0.00" data-form-gen-avgprice />
+          </div>
+        </div>
+        <div class="field">
+          <label for="invGenCurrentPrice" data-gen-currentprice-label>Current Price (per unit)</label>
+          <input id="invGenCurrentPrice" type="number" step="0.01" min="0" placeholder="Same as buy price if left blank" data-form-gen-currentprice />
+        </div>
+        <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);" data-gen-qty-help>Invested amount and Current Value below are calculated automatically — update the current price whenever you check it, to keep P&amp;L accurate.</small>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="invValue" data-value-label>Current Value</label>
+          <input id="invValue" type="number" step="0.01" min="0" placeholder="0.00" data-form-value required />
+        </div>
+        <div class="field">
+          <label for="invCost" data-cost-label>Cost Basis / Invested</label>
+          <input id="invCost" type="number" step="0.01" min="0" placeholder="0.00" data-form-costbasis required />
+        </div>
+      </div>
+      <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);" data-manual-value-hint>Cost basis is what you originally paid — used to calculate profit/loss.</small>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Investment</button>
+      </div>
+      </div>
+      <!-- /details step -->
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ DIVIDEND PAGE ============ -->
+  <div class="modal-backdrop" id="dividendModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-dividend-modal-title>Add Dividend</h1>
+          <p>Log a dividend payout for a holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <form class="modal" data-dividend-form novalidate>
+      <div class="field" style="position:relative;" data-dividend-holding-search-wrap>
+        <label for="divHoldingSearch">Holding</label>
+        <input id="divHoldingSearch" type="text" placeholder="Type 3+ letters to search your holdings…" data-form-dividend-holding-search autocomplete="off" required />
+        <input type="hidden" data-form-dividend-holding />
+        <ul data-dividend-holding-results style="list-style:none; margin:4px 0 0; padding:0; position:absolute; top:100%; left:0; right:0; z-index:20; background:var(--color-surface, #1c1c22); border:1px solid var(--color-border, #333); border-radius:8px; max-height:180px; overflow-y:auto; display:none;"></ul>
+        <small style="display:block; margin-top:4px;">Start typing a name — matching holdings appear as you go.</small>
+      </div>
+
+      <div class="field" data-dividend-holding-static-wrap style="display:none;">
+        <label>Holding</label>
+        <div class="input-sm" style="padding:8px 10px; border-radius:8px; background:var(--color-surface, #1c1c22); border:1px solid var(--color-border, #333);">
+          <strong data-dividend-holding-static-label>—</strong>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="divQuantity">Quantity (optional)</label>
+          <input id="divQuantity" type="number" step="any" min="0" placeholder="e.g. shares held" data-form-dividend-quantity />
+        </div>
+        <div class="field">
+          <label for="divAmount">Amount</label>
+          <input id="divAmount" type="number" step="0.01" min="0" placeholder="0.00" data-form-dividend-amount required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="divDate">Date</label>
+        <input id="divDate" type="date" data-form-dividend-date required />
+      </div>
+
+      <div class="field">
+        <label for="divNotes">Notes (optional)</label>
+        <input id="divNotes" type="text" placeholder="e.g. Interim dividend, Q1" data-form-dividend-notes />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Dividend</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ DIVIDEND SUMMARY PAGE ============ -->
+  <div class="modal-backdrop" id="dividendSummaryModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-dividend-summary-title>Dividends</h1>
+          <p>Dividend income for this holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <div class="modal">
+      <div style="display:flex; justify-content:flex-end; gap: var(--sp-2); margin-bottom: var(--sp-4);">
+        <button type="button" class="btn btn--ghost" data-view-dividend-history-btn><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+        <button type="button" class="btn btn--primary" data-add-dividend-entry-btn><i class="fa-solid fa-plus"></i> Add Entry</button>
+      </div>
+
+      <div data-dividend-summary-sub style="margin: 2px 0 var(--sp-3); font-size: var(--fs-sm); color: var(--color-text-muted);"></div>
+
+      <div class="grid-stats" style="grid-template-columns: repeat(2, 1fr); gap: var(--sp-3);" data-dividend-summary-stats></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ DIVIDEND DETAIL (BREAKDOWN / HISTORY) PAGE ============ -->
+  <div class="modal-backdrop" id="dividendDetailModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-dividend-detail-title>Dividend History</h1>
+          <p>Every dividend payout on record</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <div class="modal">
+      <div data-dividend-detail-summary style="margin: 4px 0 var(--sp-3); font-size: var(--fs-sm); color: var(--color-text-muted);"></div>
+
+      <div class="holdings-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th class="text-right">Qty.</th>
+              <th class="text-right">Per Share</th>
+              <th class="text-right">Amount</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-dividend-detail-body></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ HOLDING DETAIL PAGE ============ -->
+  <div class="modal-backdrop" id="holdingDetailModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-holding-detail-title>Holding</h1>
+          <p>Performance and history for this holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <div class="modal">
+      <div style="display:flex; justify-content:flex-end; gap: var(--sp-2); margin-bottom: var(--sp-4); flex-wrap:wrap;">
+        <button type="button" class="btn btn--ghost" data-view-holding-history-btn><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+        <button type="button" class="btn btn--ghost" data-view-holding-dividends-btn><i class="fa-solid fa-sack-dollar"></i> Dividends</button>
+        <button type="button" class="btn btn--primary" data-add-holding-entry-btn><i class="fa-solid fa-plus"></i> Add Entry</button>
+      </div>
+
+      <div data-holding-detail-sub style="margin: 2px 0 var(--sp-3); font-size: var(--fs-sm); color: var(--color-text-muted);"></div>
+
+      <div class="grid-stats" style="grid-template-columns: repeat(2, 1fr); gap: var(--sp-3);" data-holding-detail-stats></div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" style="color: var(--color-negative);" data-holding-detail-delete-btn><i class="fa-solid fa-trash"></i> Delete</button>
+        <button type="button" class="btn btn--ghost" data-holding-detail-edit-btn><i class="fa-solid fa-pen"></i> Edit</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ ADD HOLDING ENTRY (AVERAGE IN) PAGE ============ -->
+  <div class="modal-backdrop" id="holdingEntryModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-holding-entry-title>Add Entry</h1>
+          <p>Add to this holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <form class="modal" data-holding-entry-form novalidate>
+      <small style="display:block; margin-bottom: var(--sp-3);" data-holding-entry-current></small>
+
+      <div class="field">
+        <label for="entryDate">Date</label>
+        <input id="entryDate" type="date" data-form-entry-date required />
+      </div>
+
+      <div data-holding-entry-unit-fields>
+        <div class="field-row">
+          <div class="field">
+            <label for="entryQty" data-entry-qty-label>Quantity / Units</label>
+            <input id="entryQty" type="number" step="any" min="0" placeholder="0" data-form-entry-quantity />
+          </div>
+          <div class="field">
+            <label for="entryPrice" data-entry-price-label>Buy Price (per unit)</label>
+            <input id="entryPrice" type="number" step="0.01" min="0" placeholder="0.00" data-form-entry-price />
+          </div>
+        </div>
+        <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);" data-holding-entry-preview></small>
+      </div>
+
+      <div data-holding-entry-manual-fields style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="entryInvested">Amount Invested</label>
+            <input id="entryInvested" type="number" step="0.01" min="0" placeholder="0.00" data-form-entry-invested />
+          </div>
+          <div class="field">
+            <label for="entryValueAdd">Added to Current Value</label>
+            <input id="entryValueAdd" type="number" step="0.01" min="0" placeholder="Same as invested if left blank" data-form-entry-value />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Add Entry</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ HOLDING HISTORY (PURCHASE LOG) PAGE ============ -->
+  <div class="modal-backdrop" id="holdingHistoryModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-holding-history-title>Purchase History</h1>
+          <p>Every purchase logged for this holding</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Assets
+        </button>
+      </div>
+
+    <div class="modal">
+      <div class="holdings-table-wrap" style="margin-top: var(--sp-3);">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th class="text-right">Qty.</th>
+              <th class="text-right">Price</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody data-holding-history-body></tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+  </div>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/investments.js"></script>
+  <script src="assets/js/utils/market-data.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/utils/moi.js"></script>
+  <script src="assets/js/utils/pdf-fonts.js"></script>
+  <script src="assets/js/utils/export.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/components/datepicker.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/accounts.js"></script>
+  <script src="assets/js/investments.js"></script>
+  <script>
+    // Moi Given entry-point card: shows outstanding moi you've given that
+    // hasn't been returned to you yet (an asset — see utils/moi.js givenTotal()).
+    (function renderMoiGivenCard() {
+      if (!window.Moi) return;
+      const total = Moi.givenTotal();
+      const count = Moi.givenCount();
+      const totalEl = document.querySelector('[data-moi-asset-total]');
+      const subEl = document.querySelector('[data-moi-asset-sub]');
+      if (totalEl) totalEl.textContent = Helpers.formatCurrency(total, 'INR');
+      if (subEl) {
+        subEl.textContent = count > 0
+          ? `${count} ${count === 1 ? 'entry' : 'entries'} \u00b7 awaiting return`
+          : 'Moi given at functions, awaiting return';
+      }
+    })();
+  </script>
+</body>
+</html>

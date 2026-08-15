@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tags · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Tags</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="btn btn--primary" data-add-tag-btn>
+            <i class="fa-solid fa-plus"></i> New Tag
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Summary -->
+        <section class="grid-stats grid-stats--3 stagger-in">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Total Tags</h3>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-tags"></i></span>
+            </div>
+            <div class="stat-card__value" data-total-tags>0</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Tagged Entries</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-receipt"></i></span>
+            </div>
+            <div class="stat-card__value" data-tagged-count>0</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Most Used Tag</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-fire"></i></span>
+            </div>
+            <div class="stat-card__value" style="font-family: var(--font-display); font-size: var(--fs-lg);" data-top-tag>—</div>
+          </div>
+        </section>
+
+        <!-- Tag cards -->
+        <section class="stagger-in">
+          <div class="section-heading" style="margin-bottom: var(--sp-3);">
+            <h2 style="margin:0;">Your Tags</h2>
+            <span class="topbar__date" style="font-size: var(--fs-xs);">Tags help you label income & expense entries with anything you like — projects, people, purposes.</span>
+          </div>
+          <div class="tags-grid" data-tags-grid></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT TAG PAGE ============ -->
+  <div class="modal-backdrop" id="tagModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>New Tag</h1>
+          <p>Give your transactions a custom label</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Tags
+        </button>
+      </div>
+
+    <form class="modal" data-tag-form novalidate>
+      <div class="field">
+        <label for="tagName">Tag Name</label>
+        <input id="tagName" type="text" placeholder="e.g. Business Trip" data-form-name required maxlength="24" />
+      </div>
+
+      <div class="field">
+        <label>Color</label>
+        <div class="color-swatches" data-color-swatches></div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Tag</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ TAG DETAIL PAGE (transactions under this tag) ============ -->
+  <div class="modal-backdrop" id="tagDetailModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 style="display:flex; align-items:center; gap:10px;">
+            <span class="tag-card__dot" data-detail-dot></span>
+            <span data-detail-name>Tag</span>
+          </h1>
+          <p>Every transaction tagged with this label</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Tags
+        </button>
+      </div>
+
+    <div class="modal">
+      <div class="filter-bar" style="margin-bottom: var(--sp-3);">
+        <span class="tag-badge" style="background: rgba(52,211,153,0.15); color: var(--color-accent);" data-detail-income-total>+$0.00 income</span>
+        <span class="tag-badge" style="background: rgba(248,113,113,0.15); color: var(--color-negative);" data-detail-expense-total>-$0.00 expenses</span>
+      </div>
+
+      <ul class="row-list" data-detail-list></ul>
+    </div>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/tags.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/tags.js"></script>
+</body>
+</html>

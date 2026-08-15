@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Moi · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .moi-section + .moi-section { margin-top: var(--sp-5); }
+    .moi-section__header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-4);
+    }
+    .moi-section__title { display: flex; align-items: center; gap: var(--sp-3); }
+    .moi-section__title h2 { margin: 0; font-size: var(--fs-lg); }
+    .moi-section__sub { font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: 2px; }
+    .moi-section__total { text-align: right; }
+    .moi-section__total .stat-card__value { font-size: var(--fs-xl); }
+    .moi-section__total-label { font-size: var(--fs-xs); color: var(--color-text-faint); }
+    .moi-function-chip {
+      font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: var(--radius-pill);
+      background: var(--color-surface-strong); color: var(--color-text-muted); white-space: nowrap;
+    }
+    .moi-custom-field { display: none; }
+    .moi-custom-field.is-visible { display: block; }
+    .moi-filterbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+    .moi-filterbar .search { width: 220px; }
+    .moi-filterbar select,
+    .moi-filterbar input[type="date"] {
+      height: 42px; padding: 0 14px; border-radius: var(--radius-pill);
+      background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong);
+      color: var(--color-text); font-size: var(--fs-xs);
+    }
+    .moi-filterbar__daterange { display: flex; align-items: center; gap: var(--sp-2); }
+    .moi-filterbar__sep { font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .moi-filterbar__clear { margin-left: auto; }
+    .moi-networth-setting {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--sp-4); flex-wrap: wrap;
+    }
+    .moi-networth-setting__text { display: flex; align-items: center; gap: var(--sp-3); }
+    .moi-networth-setting__text p { margin: 0; font-weight: 600; }
+    .moi-networth-setting__text span { display: block; font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: 2px; font-weight: 400; }
+    .moi-toggle { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; cursor: pointer; }
+    .moi-toggle input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+    .moi-toggle__track {
+      position: absolute; inset: 0; border-radius: var(--radius-pill);
+      background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong);
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .moi-toggle__thumb {
+      position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--color-text-faint); transition: transform .2s ease, background .2s ease;
+    }
+    .moi-toggle input:checked + .moi-toggle__track { background: var(--color-accent); border-color: var(--color-accent); }
+    .moi-toggle input:checked + .moi-toggle__track .moi-toggle__thumb { transform: translateX(20px); background: #fff; }
+    .moi-toggle input:focus-visible + .moi-toggle__track { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .moi-section[data-moi-hidden] { display: none; }
+    .moi-suggest-wrap { position: relative; }
+    .moi-suggest-list {
+      list-style: none; margin: 4px 0 0; padding: 4px; position: absolute; top: 100%; left: 0; right: 0; z-index: 30;
+      background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong);
+      border-radius: 10px; max-height: 180px; overflow-y: auto; display: none;
+    }
+    .moi-suggest-list li {
+      padding: 8px 10px; font-size: var(--fs-xs); border-radius: 6px; cursor: pointer;
+    }
+    .moi-suggest-list li:hover,
+    .moi-suggest-list li.is-active { background: var(--color-surface); }
+    @media print {
+      .sidebar, .topbar, .form-actions, [data-modal-close] { display: none !important; }
+      .main { padding: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Moi</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <a href="accounts.html" class="btn btn--ghost"><i class="fa-solid fa-building-columns"></i> Assets</a>
+          <a href="loans.html" class="btn btn--ghost"><i class="fa-solid fa-hand-holding-dollar"></i> Liabilities</a>
+          <div id="moiExportContainer"></div>
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Tabs -->
+        <section class="stagger-in">
+          <div class="period-tabs">
+            <button data-moi-tab="taken" class="is-active-tab"><i class="fa-solid fa-hand-holding-dollar"></i> Moi Received</button>
+            <button data-moi-tab="given"><i class="fa-solid fa-hand-holding-heart"></i> Moi Given</button>
+            <button data-moi-tab="combined"><i class="fa-solid fa-people-arrows"></i> Combined</button>
+          </div>
+        </section>
+
+        <!-- ============ NET WORTH SETTING ============ -->
+        <section class="glass card stagger-in moi-networth-setting">
+          <div class="moi-networth-setting__text">
+            <span class="chip tone-accent" style="width:40px;height:40px;"><i class="fa-solid fa-scale-balanced"></i></span>
+            <div>
+              <p>Include Moi in Net Worth</p>
+              <span>When on, Moi Given is added to Total Assets and Moi Received is added to Total Liabilities on the Net Worth page and Dashboard.</span>
+            </div>
+          </div>
+          <label class="moi-toggle" title="Include Moi in Net Worth">
+            <input type="checkbox" data-moi-networth-toggle aria-label="Include Moi in Net Worth" />
+            <span class="moi-toggle__track"><span class="moi-toggle__thumb"></span></span>
+          </label>
+        </section>
+
+        <!-- ============ FILTERS & SEARCH ============ -->
+        <section class="glass card stagger-in">
+          <div class="moi-filterbar">
+            <label class="search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Search by name…" data-filter-name autocomplete="off" aria-label="Search by name" />
+            </label>
+            <label class="search">
+              <i class="fa-solid fa-location-dot"></i>
+              <input type="text" placeholder="Search by village…" data-filter-village autocomplete="off" aria-label="Search by village" />
+            </label>
+            <select data-filter-function aria-label="Filter by function">
+              <option value="all">All Functions</option>
+            </select>
+            <div class="moi-filterbar__daterange">
+              <input type="date" data-filter-from aria-label="From date" />
+              <span class="moi-filterbar__sep">to</span>
+              <input type="date" data-filter-to aria-label="To date" />
+            </div>
+            <select data-sort-by aria-label="Sort by">
+              <option value="date">Sort: Date</option>
+              <option value="name">Sort: Name</option>
+              <option value="amount">Sort: Amount</option>
+              <option value="village">Sort: Village</option>
+              <option value="function">Sort: Function</option>
+            </select>
+            <button type="button" class="btn--icon" data-sort-dir aria-label="Toggle sort direction" title="Toggle ascending/descending">
+              <i class="fa-solid fa-arrow-down-wide-short"></i>
+            </button>
+            <button type="button" class="btn btn--ghost moi-filterbar__clear" data-filter-clear>
+              <i class="fa-solid fa-xmark"></i> Clear Filters
+            </button>
+          </div>
+        </section>
+
+        <!-- ============ MOI RECEIVED (liability) ============ -->
+        <section class="glass card moi-section stagger-in" data-moi-tab-panel="taken">
+          <div class="moi-section__header">
+            <div class="moi-section__title">
+              <span class="chip tone-negative" style="width:44px;height:44px;"><i class="fa-solid fa-hand-holding-dollar"></i></span>
+              <div>
+                <h2>Moi Received</h2>
+                <p class="moi-section__sub">Moi you received at your own function — owed back by you</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap: var(--sp-4);">
+              <div class="moi-section__total">
+                <div class="stat-card__value num" data-taken-total>₹0</div>
+                <div class="moi-section__total-label" data-taken-count-label>0 entries</div>
+              </div>
+              <button type="button" class="btn btn--primary" data-add-btn="taken">
+                <i class="fa-solid fa-plus"></i> Add Moi Received
+              </button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" data-taken-table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Village</th>
+                  <th>Function</th>
+                  <th>Notes</th>
+                  <th class="text-right">Amount</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody data-taken-rows></tbody>
+            </table>
+          </div>
+          <div class="empty-state" data-taken-empty style="display:none;">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <p>No Moi received recorded yet.</p>
+          </div>
+        </section>
+
+        <!-- ============ MOI GIVEN (asset) ============ -->
+        <section class="glass card moi-section stagger-in" data-moi-tab-panel="given" hidden>
+          <div class="moi-section__header">
+            <div class="moi-section__title">
+              <span class="chip tone-accent" style="width:44px;height:44px;"><i class="fa-solid fa-hand-holding-heart"></i></span>
+              <div>
+                <h2>Moi Given</h2>
+                <p class="moi-section__sub">Moi you gave at someone else's function — owed back to you</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap: var(--sp-4);">
+              <div class="moi-section__total">
+                <div class="stat-card__value num" data-given-total>₹0</div>
+                <div class="moi-section__total-label" data-given-count-label>0 entries</div>
+              </div>
+              <button type="button" class="btn btn--primary" data-add-btn="given">
+                <i class="fa-solid fa-plus"></i> Add Moi Given
+              </button>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" data-given-table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Village</th>
+                  <th>Function</th>
+                  <th>Notes</th>
+                  <th class="text-right">Amount</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody data-given-rows></tbody>
+            </table>
+          </div>
+          <div class="empty-state" data-given-empty style="display:none;">
+            <i class="fa-solid fa-hand-holding-heart"></i>
+            <p>No Moi given recorded yet.</p>
+          </div>
+        </section>
+
+        <!-- ============ COMBINED (same name + village on both sides) ============ -->
+        <section class="glass card moi-section stagger-in" data-moi-tab-panel="combined" hidden>
+          <div class="moi-section__header">
+            <div class="moi-section__title">
+              <span class="chip tone-info" style="width:44px;height:44px;"><i class="fa-solid fa-people-arrows"></i></span>
+              <div>
+                <h2>Combined</h2>
+                <p class="moi-section__sub">Same name &amp; village on both Given and Received — net position between you</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" data-combined-table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Village</th>
+                  <th class="text-right">Given</th>
+                  <th class="text-right">Received</th>
+                  <th class="text-right">Net</th>
+                </tr>
+              </thead>
+              <tbody data-combined-rows></tbody>
+            </table>
+          </div>
+          <div class="empty-state" data-combined-empty style="display:none;">
+            <i class="fa-solid fa-people-arrows"></i>
+            <p>No one appears on both sides yet — combined entries show up here once a name &amp; village match in both Given and Received.</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT MOI ENTRY PAGE ============ -->
+  <div class="modal-backdrop" id="moiModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>Add Moi Given</h1>
+          <p data-modal-sub>Record a Moi entry</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+      </div>
+
+    <form class="modal" data-moi-form novalidate>
+      <input type="hidden" data-form-direction value="given" />
+      <input type="hidden" data-form-id value="" />
+
+      <div class="field-row">
+        <div class="field moi-suggest-wrap">
+          <label for="moiName">Name</label>
+          <input id="moiName" type="text" placeholder="e.g. Ramesh Kumar" data-form-name autocomplete="off" required />
+          <ul class="moi-suggest-list" data-name-suggestions></ul>
+        </div>
+        <div class="field moi-suggest-wrap">
+          <label for="moiVillage">Village</label>
+          <input id="moiVillage" type="text" placeholder="e.g. Pollachi" data-form-village autocomplete="off" />
+          <ul class="moi-suggest-list" data-village-suggestions></ul>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="moiAmount">Amount (₹)</label>
+          <input id="moiAmount" type="number" step="0.01" min="0.01" placeholder="0.00" data-form-amount required />
+        </div>
+        <div class="field">
+          <label for="moiDate">Date</label>
+          <input id="moiDate" type="date" data-form-date required />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="moiFunction">Function</label>
+        <select id="moiFunction" data-form-function required></select>
+      </div>
+
+      <div class="field moi-custom-field" data-custom-function-field>
+        <label for="moiFunctionCustom">Custom Function Name</label>
+        <input id="moiFunctionCustom" type="text" placeholder="e.g. Naming Ceremony" data-form-function-custom />
+      </div>
+
+      <div class="field">
+        <label for="moiNotes">Notes</label>
+        <textarea id="moiNotes" rows="3" placeholder="Any other details worth remembering…" data-form-notes></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Entry</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/moi.js"></script>
+  <script src="assets/js/utils/pdf-fonts.js"></script>
+  <script src="assets/js/utils/export.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/moi.js"></script>
+</body>
+</html>

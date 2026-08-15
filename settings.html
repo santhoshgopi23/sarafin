@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Settings · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); align-items: start; }
+    .theme-options { display: flex; gap: var(--sp-3); }
+    .theme-option {
+      flex: 1; display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3); border-radius: var(--radius-md);
+      background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong); cursor: pointer;
+    }
+    .theme-option input { accent-color: var(--color-accent); }
+    .danger-zone { border-color: rgba(248,113,113,0.3) !important; }
+    @media (max-width: 900px) { .settings-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Settings</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <div class="settings-grid stagger-in">
+
+          <!-- Profile & preferences -->
+          <form class="glass card" data-settings-form novalidate>
+            <div class="card__header">
+              <h3 class="card__title">Profile & Preferences</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-user"></i></span>
+            </div>
+
+            <div class="field">
+              <label for="settingsName">Display Name</label>
+              <input id="settingsName" type="text" placeholder="Your name" data-form-username />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="settingsCurrency">Currency</label>
+                <select id="settingsCurrency" data-form-currency>
+                  <option value="USD">USD — US Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="GBP">GBP — British Pound</option>
+                  <option value="SGD">SGD — Singapore Dollar</option>
+                  <option value="INR">INR — Indian Rupee</option>
+                  <option value="JPY">JPY — Japanese Yen</option>
+                  <option value="AUD">AUD — Australian Dollar</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="settingsLanguage">Language</label>
+                <select id="settingsLanguage" data-form-language>
+                  <option value="en">English</option>
+                  <option value="es">Español (coming soon)</option>
+                  <option value="fr">Français (coming soon)</option>
+                  <option value="zh">中文 (coming soon)</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center; margin-top: var(--sp-2);">
+              <i class="fa-solid fa-check"></i> Save Changes
+            </button>
+          </form>
+
+          <!-- Market Data (live stock prices) -->
+          <form class="glass card" data-market-data-form novalidate>
+            <div class="card__header">
+              <h3 class="card__title">Market Data</h3>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+
+            <div class="field">
+              <label for="settingsMarketDataProvider">Provider</label>
+              <select id="settingsMarketDataProvider" data-form-market-provider>
+                <option value="yahoo" selected>Yahoo Finance (no key, unofficial) — default</option>
+                <option value="alphavantage">Alpha Vantage (free)</option>
+                <option value="groww">Groww Trading API</option>
+              </select>
+            </div>
+
+            <div data-provider-fields="alphavantage" style="display:none;">
+              <div class="field">
+                <label for="settingsAlphaVantageKey">Alpha Vantage API Key</label>
+                <input id="settingsAlphaVantageKey" type="text" placeholder="Paste your free API key" data-form-alphavantage-key />
+              </div>
+              <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);">
+                Get a free key at
+                <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener">alphavantage.co</a>
+                (free tier: ~25 requests/day). The key is stored only in this browser.
+              </small>
+            </div>
+
+            <div data-provider-fields="groww" style="display:none;">
+              <div class="field">
+                <label for="settingsGrowwAccessToken">Groww Access Token</label>
+                <input id="settingsGrowwAccessToken" type="text" placeholder="Paste today's Access Token" data-form-groww-token />
+              </div>
+              <small style="display:block; margin-top:-8px; margin-bottom: var(--sp-3);">
+                Requires an active Groww Trading API subscription. Generate a token at
+                <a href="https://groww.in/trade-api/api-keys" target="_blank" rel="noopener">groww.in/trade-api/api-keys</a>
+                — it expires daily at 6:00 AM, so paste a fresh one each morning. Symbol search uses Groww's public
+                instrument list. Note: Groww's API is built for server-side trading bots, so direct browser calls may be
+                blocked (CORS) — if live prices fail to load, that's why. The token is stored only in this browser.
+              </small>
+            </div>
+
+            <div data-provider-fields="yahoo">
+              <div class="info-banner info-banner--info" style="margin-bottom: var(--sp-3);">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>
+                  No API key needed. This uses Yahoo Finance's public search/quote endpoints, which are
+                  <strong>unofficial and undocumented</strong> — Yahoo doesn't allow browser calls directly (CORS),
+                  so requests fall back to a public proxy (corsproxy.io) automatically when needed. It can break,
+                  get rate-limited, or be blocked on some networks without warning. If lookups keep failing, switch
+                  to Alpha Vantage above.
+                </span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">
+              <i class="fa-solid fa-check"></i> Save Key
+            </button>
+          </form>
+
+          <!-- Theme -->
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Appearance</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-moon"></i></span>
+            </div>
+            <div class="theme-options">
+              <label class="theme-option">
+                <input type="radio" name="theme" value="dark" data-theme-radio />
+                <i class="fa-solid fa-moon"></i> Dark
+              </label>
+              <label class="theme-option">
+                <input type="radio" name="theme" value="light" data-theme-radio />
+                <i class="fa-solid fa-sun"></i> Light
+              </label>
+            </div>
+            <p style="margin-top: var(--sp-3);">Dark mode is the default and pairs with the glass/ledger design. Light mode is fully themed too.</p>
+          </div>
+
+          <!-- Data management -->
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Data Management</h3>
+              <span class="chip tone-gold card__icon"><i class="fa-solid fa-database"></i></span>
+            </div>
+            <p>Your data lives only in this browser's local storage. Export a copy any time, or restore from a previous export.</p>
+
+            <div style="display:flex; flex-direction:column; gap: var(--sp-3);">
+              <button type="button" class="btn btn--ghost" style="width:100%; justify-content:center;" data-export-data>
+                <i class="fa-solid fa-file-export"></i> Export Data (JSON)
+              </button>
+
+              <label class="btn btn--ghost" style="width:100%; justify-content:center; cursor:pointer;">
+                <i class="fa-solid fa-file-import"></i> Import Data
+                <input type="file" accept="application/json" data-import-data style="display:none;" />
+              </label>
+
+              <button type="button" class="btn btn--ghost" style="width:100%; justify-content:center;" data-backup-data>
+                <i class="fa-solid fa-cloud-arrow-down"></i> Create Backup
+              </button>
+
+              <label class="btn btn--ghost" style="width:100%; justify-content:center; cursor:pointer;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Restore from Backup
+                <input type="file" accept="application/json" data-restore-data style="display:none;" />
+              </label>
+
+              <hr style="border:none; border-top:1px solid var(--color-border, rgba(255,255,255,.08)); margin: var(--sp-2) 0;" />
+
+              <label class="btn btn--ghost" style="width:100%; justify-content:center; cursor:pointer;">
+                <i class="fa-solid fa-file-csv"></i> Import CSV
+                <input type="file" accept=".csv,text/csv" data-import-csv style="display:none;" />
+              </label>
+              <small style="color: var(--color-text-muted, #8b8fa3);">
+                Import transactions from a spreadsheet export (Date, Category, Amount, Note, Type, Payment mode, Tags columns). You'll see a preview before anything is added.
+              </small>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="glass card danger-zone">
+            <div class="card__header">
+              <h3 class="card__title" style="color: var(--color-negative);">Danger Zone</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            </div>
+            <p>Permanently erase every account, transaction, budget, goal, card, and investment stored in this browser.</p>
+            <button type="button" class="btn" style="width:100%; justify-content:center; background: var(--gradient-negative); color:#fff;" data-delete-all>
+              <i class="fa-solid fa-trash"></i> Delete All Data
+            </button>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ CSV IMPORT PREVIEW PAGE ============ -->
+  <div class="modal-backdrop" id="csvImportModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>Import CSV — Preview</h1>
+          <p>Review the rows below before importing</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Settings
+        </button>
+      </div>
+
+    <div class="modal">
+      <div data-csv-preview-body style="display:flex; flex-direction:column; gap: var(--sp-3);">
+        <!-- Filled in by settings.js -->
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="button" class="btn btn--primary" data-csv-confirm-import>
+          <i class="fa-solid fa-check"></i> Import Transactions
+        </button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/tags.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/csv-import.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/settings.js"></script>
+</body>
+</html>

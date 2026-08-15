@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Income · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Income</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <label class="btn btn--ghost" style="cursor:pointer;" title="Import transactions from a CSV export">
+            <i class="fa-solid fa-file-csv"></i> Import
+            <input type="file" accept=".csv,text/csv" data-import-csv style="display:none;" />
+          </label>
+          <button class="btn btn--primary" data-add-income-btn data-modal-open="#incomeModal">
+            <i class="fa-solid fa-plus"></i> Add Income
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Stat cards: 4 small boxes -->
+        <section class="grid-stats stagger-in">
+          <div class="glass card card--sm">
+            <div class="card__header">
+              <h3 class="card__title">Total (<span data-period-label>This Month</span>)</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-arrow-trend-up"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-income>$0.00</div>
+            <span class="stat-card__delta" data-income-count style="color: var(--color-text-faint);">0 transactions</span>
+          </div>
+
+          <div class="glass card card--sm">
+            <div class="card__header">
+              <h3 class="card__title" data-avg-label>Monthly Avg</h3>
+              <button type="button" class="btn--icon" data-avg-toggle title="Switch between monthly and yearly average" aria-label="Switch average period">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+            <div class="stat-card__value num" data-avg-value>$0.00</div>
+            <span class="stat-card__delta" data-avg-sub style="color: var(--color-text-faint);">—</span>
+          </div>
+
+          <div class="glass card card--sm card--interactive" data-today-box role="button" tabindex="0" style="cursor:pointer;">
+            <div class="card__header">
+              <h3 class="card__title">Today</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-calendar-day"></i></span>
+            </div>
+            <div class="stat-card__value num" data-today-income>$0.00</div>
+            <span class="stat-card__delta" style="color: var(--color-text-faint);"><i class="fa-solid fa-calendar-days"></i> View daily calendar</span>
+          </div>
+
+          <div class="glass card card--sm">
+            <div class="card__header">
+              <h3 class="card__title">Category</h3>
+              <select class="category-box-select" data-category-box-select aria-label="Select a category to view its total"></select>
+            </div>
+            <div class="stat-card__value num" data-category-box-value style="margin-top:2px;">$0.00</div>
+            <span class="stat-card__delta" data-category-box-sub style="color: var(--color-text-faint);">—</span>
+          </div>
+        </section>
+
+        <!-- Filters -->
+        <section class="glass card stagger-in">
+          <div class="card__header">
+            <h3 class="card__title">Filters</h3>
+            <span class="chip tone-info card__icon"><i class="fa-solid fa-filter"></i></span>
+          </div>
+
+          <div class="period-tabs" style="margin-bottom: var(--sp-3);">
+            <button data-period-tab="weekly">Weekly</button>
+            <button data-period-tab="monthly" class="is-active-tab">Monthly</button>
+            <button data-period-tab="yearly">Yearly</button>
+            <button data-period-tab="lifetime">Lifetime</button>
+            <button data-period-tab="custom">Custom</button>
+          </div>
+          <div class="period-controls" style="margin-bottom: var(--sp-3);">
+            <select data-period-month aria-label="Select month"></select>
+            <select data-period-year aria-label="Select year"></select>
+            <input type="date" data-period-from aria-label="From date" style="display:none;" />
+            <input type="date" data-period-to aria-label="To date" style="display:none;" />
+          </div>
+
+          <div class="filter-bar">
+            <label class="search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Search income…" data-income-search aria-label="Search income" />
+            </label>
+            <select data-filter-category aria-label="Filter by category"></select>
+            <select data-filter-tag aria-label="Filter by tag"></select>
+            <button class="btn btn--ghost" data-export-csv><i class="fa-solid fa-file-export"></i> Export CSV</button>
+          </div>
+        </section>
+
+        <!-- List + charts -->
+        <section class="grid-split stagger-in">
+          <div class="glass card">
+            <div class="section-heading">
+              <h2 style="margin:0;">Recent Income</h2>
+            </div>
+            <ul class="row-list" data-income-list style="margin-top: var(--sp-3);"></ul>
+            <div class="list-more" data-income-show-all-wrap style="display:none;">
+              <button type="button" class="btn btn--ghost" data-income-show-all>
+                <i class="fa-solid fa-list"></i> Show All Transactions (<span data-income-total-count>0</span>)
+              </button>
+            </div>
+          </div>
+
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">By Category</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="incomeCategoryChart"></canvas>
+            </div>
+            <div class="legend-inline" data-category-legend></div>
+          </div>
+        </section>
+
+        <!-- Yearly trend -->
+        <section class="glass card chart-panel stagger-in">
+          <div class="card__header">
+            <h3 class="card__title">Monthly Income Trend</h3>
+            <select data-filter-year aria-label="Select year" style="height:36px; padding:0 12px; border-radius: var(--radius-pill); background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong); color: var(--color-text);"></select>
+          </div>
+          <div class="chart-panel__canvas-wrap">
+            <canvas id="incomeTrendChart"></canvas>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT INCOME PAGE ============ -->
+  <div class="modal-backdrop" id="incomeModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>Add Income</h1>
+          <p>Track money coming in</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Income
+        </button>
+      </div>
+
+    <form class="modal" data-income-form novalidate>
+      <div class="field">
+        <label for="incTitle">Title</label>
+        <input id="incTitle" type="text" placeholder="e.g. Monthly Salary" data-form-title required />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="incAmount">Amount</label>
+          <div class="amount-currency-row">
+            <input id="incAmount" type="number" step="0.01" min="0.01" placeholder="0.00" data-form-amount required />
+            <div class="currency-toggle" data-currency-toggle>
+              <button type="button" data-currency-btn="INR" class="is-active">₹ Rupees</button>
+              <button type="button" data-currency-btn="SGD">S$ SGD</button>
+            </div>
+          </div>
+          <small class="currency-hint" data-currency-hint style="display:none;"></small>
+          <button type="button" class="link-btn" data-change-rate style="display:none;">Change rate</button>
+        </div>
+        <div class="field">
+          <label for="incDate">Date</label>
+          <input id="incDate" type="date" data-form-date required />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="incCategory">Category</label>
+          <select id="incCategory" data-form-category></select>
+        </div>
+        <div class="field">
+          <label for="incAccount">Account</label>
+          <select id="incAccount" data-form-account></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tags</label>
+        <div class="tag-search" data-form-tags>
+          <div class="tag-search__chips" data-tag-chips></div>
+          <input type="text" class="tag-search__input" data-tag-search-input placeholder="Search tags to add…" autocomplete="off" />
+          <div class="tag-search__dropdown" data-tag-suggestions></div>
+        </div>
+        <a class="tag-picker__manage" href="tags.html">Manage tags <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Income</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- ============ ALL INCOME PAGE ============ -->
+  <div class="modal-backdrop" id="incomeAllModal">
+    <div class="view-page__container view-page__container--wide">
+      <div class="view-page__header">
+        <div>
+          <h1>All Income</h1>
+          <p>Browse and filter every income transaction</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Income
+        </button>
+      </div>
+
+    <div class="modal modal--xl">
+      <div class="modal-filter-bar">
+        <label class="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search income…" data-all-search aria-label="Search income" />
+        </label>
+        <select data-all-category aria-label="Filter by category"></select>
+        <select data-all-tag aria-label="Filter by tag"></select>
+        <input type="date" data-all-from aria-label="From date" />
+        <input type="date" data-all-to aria-label="To date" />
+        <span class="modal-filter-bar__hint" data-all-count>0 transactions</span>
+      </div>
+
+      <ul class="row-list" data-all-list></ul>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ DAILY INCOME CALENDAR PAGE ============ -->
+  <div class="modal-backdrop" id="dailyCalendarModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-calendar-title>Daily Income</h1>
+          <p>Tap a day to see what you earned</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Income
+        </button>
+      </div>
+
+    <div class="modal">
+      <div class="cal-nav">
+        <button type="button" class="btn--icon" data-cal-prev aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+        <span data-cal-total class="num">$0.00</span>
+        <button type="button" class="btn--icon" data-cal-next aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+
+      <div class="exp-calendar" data-cal-grid></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ CSV IMPORT PREVIEW PAGE ============ -->
+  <div class="modal-backdrop" id="csvImportModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>Import CSV — Preview</h1>
+          <p>Review the rows below before importing</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Income
+        </button>
+      </div>
+
+    <div class="modal">
+      <div data-csv-preview-body style="display:flex; flex-direction:column; gap: var(--sp-3);">
+        <!-- Filled in by csv-import-ui.js -->
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="button" class="btn btn--primary" data-csv-confirm-import>
+          <i class="fa-solid fa-check"></i> Import Transactions
+        </button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/tags.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/csv-import.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/components/datepicker.js"></script>
+  <script src="assets/js/components/category-picker.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/components/csv-import-ui.js"></script>
+  <script src="assets/js/utils/pdf-fonts.js"></script>
+  <script src="assets/js/utils/export.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/income.js"></script>
+</body>
+</html>

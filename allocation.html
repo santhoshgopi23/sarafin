@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Allocation · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    /* ---- Target allocation form ---- */
+    .alloc-target-row {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-3) 0; border-bottom: 1px solid var(--color-surface-border);
+    }
+    .alloc-target-row:last-of-type { border-bottom: none; }
+    .alloc-target-row__icon {
+      width: 36px; height: 36px; border-radius: var(--radius-md); flex-shrink: 0;
+      display: grid; place-items: center; font-size: 14px;
+    }
+    .alloc-target-row__label { flex: 1; font-weight: 600; }
+    .alloc-target-row__input-wrap { position: relative; width: 110px; flex-shrink: 0; }
+    .alloc-target-row__input-wrap input {
+      width: 100%; text-align: right; padding-right: 28px;
+      background: var(--color-surface-strong); border: 1px solid var(--color-surface-border-strong);
+      border-radius: var(--radius-sm); color: var(--color-text); height: 38px; font-family: var(--font-mono);
+    }
+    .alloc-target-row__input-wrap input:focus { border-color: var(--color-accent); outline: none; }
+    .alloc-target-row__input-wrap span {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--color-text-faint); font-size: var(--fs-sm); pointer-events: none;
+    }
+    .alloc-target-total {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--color-surface-border);
+    }
+    .alloc-target-total__value { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-lg); }
+    .alloc-target-total__value.is-balanced { color: var(--color-profit); }
+    .alloc-target-total__value.is-off { color: var(--color-negative); }
+
+    /* ---- Banner ---- */
+    .alloc-banner {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4); border-radius: var(--radius-md);
+      margin-bottom: var(--sp-4); font-weight: 600; font-size: var(--fs-sm);
+    }
+    .alloc-banner--warning { background: rgba(248, 113, 113, 0.12); color: var(--color-negative); }
+    .alloc-banner--info { background: rgba(96, 165, 250, 0.12); color: var(--color-info); }
+    .alloc-banner--ok { background: rgba(52, 211, 153, 0.12); color: var(--color-profit); }
+
+    /* ---- Donut with center total ---- */
+    .alloc-donut-wrap { position: relative; height: 220px; }
+    .alloc-donut-center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none; text-align: center;
+    }
+    .alloc-donut-center__value { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-lg); color: var(--color-text); }
+    .alloc-donut-center__label { font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: 2px; }
+
+    .alloc-legend { display: flex; flex-direction: column; gap: var(--sp-3); justify-content: center; }
+    .alloc-legend__row { display: flex; align-items: center; gap: var(--sp-2); }
+    .alloc-legend__dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .alloc-legend__label { flex: 1; font-weight: 600; font-size: var(--fs-sm); }
+    .alloc-legend__pct { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-sm); width: 56px; text-align: right; }
+    .alloc-legend__amt { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--color-text-faint); width: 96px; text-align: right; }
+
+    @media (max-width: 900px) {
+      .alloc-legend__amt { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Allocation</h1>
+            <span class="topbar__date">Asset allocation &amp; rebalancing</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <div data-alloc-banner></div>
+
+        <!-- Target allocation plan (the "ask") — compact summary, editing happens in a popup -->
+        <section class="glass card stagger-in">
+          <div class="card__header">
+            <h3 class="card__title">Your Target Allocation Plan</h3>
+            <button type="button" class="btn btn--primary" data-modal-open="#targetAllocModal" style="padding:6px 12px; font-size:var(--fs-sm);">
+              <i class="fa-solid fa-pen"></i> Edit Target Allocation
+            </button>
+          </div>
+          <p style="color: var(--color-text-faint); margin-top:-6px;">
+            How you <em>want</em> your portfolio split across asset types, compared against what you actually hold.
+          </p>
+
+          <div data-alloc-target-summary></div>
+        </section>
+
+        <!-- Current allocation -->
+        <section class="glass card stagger-in">
+          <div class="card__header">
+            <h3 class="card__title">Current Allocation</h3>
+            <span class="chip tone-accent card__icon"><i class="fa-solid fa-chart-pie"></i></span>
+          </div>
+
+          <div data-alloc-current-body>
+            <!-- Filled in by allocation.js -->
+          </div>
+        </section>
+
+        <!-- Target vs Actual -->
+        <section class="glass card stagger-in">
+          <div class="section-heading">
+            <h2 style="margin:0;">Target vs Actual</h2>
+          </div>
+          <div class="holdings-table-wrap" style="margin-top: var(--sp-3);">
+            <table class="data-table" data-alloc-table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th class="text-right">Actual</th>
+                  <th class="text-right">Cur. Val</th>
+                  <th class="text-right">Target</th>
+                  <th class="text-right">Tgt. Val</th>
+                  <th class="text-right">Gap</th>
+                  <th class="text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody data-alloc-table-body></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ EDIT TARGET ALLOCATION PAGE ============ -->
+  <div class="modal-backdrop" id="targetAllocModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1>Edit Target Allocation</h1>
+          <p>Tell us how you <em>want</em> your portfolio split across asset types</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Allocation
+        </button>
+      </div>
+
+    <div class="modal">
+      <p style="color: var(--color-text-faint); margin-top:0;">
+        We'll compare it against what you actually hold and tell you what to add or trim. The total can't go over 100%.
+      </p>
+
+      <div data-alloc-target-form></div>
+
+      <div class="alloc-target-total">
+        <span>Total allocated <small style="color: var(--color-text-faint); font-weight:400;" data-alloc-target-remaining></small></span>
+        <span class="alloc-target-total__value" data-alloc-target-total>0%</span>
+      </div>
+
+      <div class="form-actions" style="margin-top: var(--sp-4);">
+        <button type="button" class="btn btn--ghost" data-alloc-reset>
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+        <button type="button" class="btn btn--primary" data-alloc-save>
+          <i class="fa-solid fa-check"></i> Save Target Allocation
+        </button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/accounts.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/tags.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/investments.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/allocation.js"></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Budget · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--sp-5);
+    }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Budget Planner</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="btn btn--primary" data-add-budget-btn>
+            <i class="fa-solid fa-plus"></i> Add Budget
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Summary -->
+        <section class="grid-stats grid-stats--3 stagger-in">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Total Budgeted</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-scale-balanced"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-budget>$0.00</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Total Spent</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-arrow-trend-down"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-spent>$0.00</div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Remaining</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-piggy-bank"></i></span>
+            </div>
+            <div class="stat-card__value num" data-total-remaining>$0.00</div>
+          </div>
+        </section>
+
+        <!-- Budget cards -->
+        <section class="stagger-in">
+          <div class="section-heading" style="margin-bottom: var(--sp-3);">
+            <h2 style="margin:0;">Budgets by Category</h2>
+          </div>
+          <div class="budget-grid" data-budget-grid></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============ ADD / EDIT BUDGET PAGE ============ -->
+  <div class="modal-backdrop" id="budgetModal">
+    <div class="view-page__container">
+      <div class="view-page__header">
+        <div>
+          <h1 data-modal-title>Add Budget</h1>
+          <p>Set a monthly spending limit for a category</p>
+        </div>
+        <button type="button" class="view-page__back" data-modal-close>
+          <i class="fa-solid fa-arrow-left"></i> Back to Budget
+        </button>
+      </div>
+
+    <form class="modal" data-budget-form novalidate>
+      <div class="field">
+        <label for="budgetCategory">Category</label>
+        <select id="budgetCategory" data-form-category></select>
+        <small>Only categories without an existing budget are shown.</small>
+      </div>
+
+      <div class="field">
+        <label for="budgetLimit">Monthly Limit</label>
+        <input id="budgetLimit" type="number" step="0.01" min="0.01" placeholder="0.00" data-form-limit required />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn--primary"><i class="fa-solid fa-check"></i> Save Budget</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/budgets.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/modal.js"></script>
+  <script src="assets/js/components/category-picker.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/budget.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>All Transactions · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+
+  <style>
+    .txn-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-4);
+    }
+    @media (max-width: 720px) { .txn-summary { grid-template-columns: 1fr; } }
+
+    .txn-summary__card { padding: var(--sp-4); }
+    .txn-summary__label { font-size: var(--fs-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .txn-summary__value { font-family: var(--font-mono); font-size: var(--fs-xl); font-weight: 700; margin-top: var(--sp-2); }
+
+    .txn-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      align-items: center;
+      justify-content: space-between;
+    }
+    .txn-filter-bar__controls { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__brand-mark">$</div>
+        <div>
+          <div class="sidebar__brand-name">Ledger</div>
+          <div class="sidebar__brand-tag">Personal Finance</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>All Transactions</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Summary -->
+        <section class="txn-summary stagger-in">
+          <div class="glass card txn-summary__card">
+            <div class="txn-summary__label">Total In</div>
+            <div class="txn-summary__value" style="color:var(--color-accent);" data-txn-total-in>$0.00</div>
+          </div>
+          <div class="glass card txn-summary__card">
+            <div class="txn-summary__label">Total Out</div>
+            <div class="txn-summary__value" style="color:var(--color-negative);" data-txn-total-out>$0.00</div>
+          </div>
+          <div class="glass card txn-summary__card">
+            <div class="txn-summary__label">Net</div>
+            <div class="txn-summary__value" data-txn-total-net>$0.00</div>
+          </div>
+        </section>
+
+        <!-- Filters + table -->
+        <section class="glass card stagger-in">
+          <div class="txn-filter-bar" style="margin-bottom: var(--sp-4);">
+            <div class="pill-tabs" data-txn-period-tabs>
+              <button data-txn-period="month">Month</button>
+              <button data-txn-period="year">Year</button>
+              <button data-txn-period="all" class="is-active-tab">All Time</button>
+              <button data-txn-period="custom">Custom</button>
+            </div>
+            <div class="txn-filter-bar__controls">
+              <input type="date" id="txnFrom" class="input-sm" style="display:none;" aria-label="From date" />
+              <input type="date" id="txnTo" class="input-sm" style="display:none;" aria-label="To date" />
+              <select id="txnTypeFilter" class="select-sm">
+                <option value="all">All types</option>
+                <option value="income">Income only</option>
+                <option value="expense">Expense only</option>
+              </select>
+              <select id="txnCategoryFilter" class="select-sm">
+                <option value="all">All categories</option>
+              </select>
+              <input type="text" id="txnSearch" class="input-sm" placeholder="Search…" />
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="txnTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th style="text-align:right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="txnTableBody"></tbody>
+            </table>
+          </div>
+          <div id="txnPagination" style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--sp-3); font-size:var(--fs-sm); color:var(--color-text-muted);"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/transactions-page.js"></script>
+</body>
+</html>

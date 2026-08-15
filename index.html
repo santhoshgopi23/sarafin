@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ledger — Personal Finance, Clearly Tracked</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <link rel="stylesheet" href="assets/css/splash.css" />
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <main class="splash">
+    <div class="splash__mark">$</div>
+    <h1 class="splash__title">Every dollar,<br /><span class="accent">clearly ledgered.</span></h1>
+    <p class="splash__subtitle">
+      Track income, expenses, budgets, goals, and investments in one calm,
+      private dashboard — nothing ever leaves your browser.
+    </p>
+    <p class="splash__ticker num">
+      NET WORTH <span class="up">▲ 4.8%</span> THIS MONTH &nbsp;·&nbsp; SAVINGS RATE <span class="up">32%</span>
+    </p>
+    <div class="splash__actions">
+      <a class="btn btn--primary" href="dashboard.html"><i class="fa-solid fa-arrow-right"></i> Enter Dashboard</a>
+      <a class="btn btn--ghost" href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+    </div>
+    <span class="splash__foot">Version 1 · Local storage only · No account required</span>
+  </main>
+
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script>
+    // Seed demo data on very first visit so the dashboard isn't empty.
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof seedDemoData === 'function') seedDemoData();
+    });
+  </script>
+</body>
+</html>

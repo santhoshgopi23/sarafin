@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dashboard · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <!-- Sidebar.render() (assets/js/components/sidebar.js) builds the real
+         nav from nav-config.js and replaces this on load. Only the brand
+         block is static markup here, so there's no flash of the old
+         ungrouped nav links before JS runs. -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__brand-mark">$</div>
+        <div>
+          <div class="sidebar__brand-name">Ledger</div>
+          <div class="sidebar__brand-tag">Personal Finance</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1 data-greeting>Good morning</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions">
+          <label class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search transactions…" data-global-search aria-label="Search transactions" />
+          </label>
+          <button class="btn--icon" style="position:relative;" data-notif-toggle aria-label="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-dot"></span>
+          </button>
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Hero balance + quick actions -->
+        <section class="grid-split stagger-in">
+          <div class="glass hero-balance">
+            <span class="hero-balance__label"><i class="fa-solid fa-wallet"></i> Total net worth</span>
+            <div class="hero-balance__value num" data-hero-balance>$0.00</div>
+
+            <div class="quick-actions">
+              <button class="quick-action" data-quick-action="income.html">
+                <span class="chip tone-accent" style="width:34px;height:34px;"><i class="fa-solid fa-plus"></i></span>
+                <span>Add Income</span>
+              </button>
+              <button class="quick-action" data-quick-action="expense.html">
+                <span class="chip tone-negative" style="width:34px;height:34px;"><i class="fa-solid fa-minus"></i></span>
+                <span>Add Expense</span>
+              </button>
+              <button class="quick-action" data-quick-action="goals.html">
+                <span class="chip tone-gold" style="width:34px;height:34px;"><i class="fa-solid fa-bullseye"></i></span>
+                <span>New Goal</span>
+              </button>
+              <button class="quick-action" data-quick-action="reports.html">
+                <span class="chip tone-info" style="width:34px;height:34px;"><i class="fa-solid fa-file-export"></i></span>
+                <span>View Reports</span>
+              </button>
+            </div>
+
+            <div class="hero-balance__row">
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">Account balance</span>
+                <span class="hero-balance__mini-value num" data-mini-balance>$0.00</span>
+              </div>
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">This month's savings</span>
+                <span class="hero-balance__mini-value num" data-mini-savings>$0.00</span>
+              </div>
+              <div class="hero-balance__mini">
+                <span class="hero-balance__mini-label">Accounts</span>
+                <span class="hero-balance__mini-value num" data-mini-accounts>0</span>
+              </div>
+            </div>
+            <div class="hero-balance__ticks"></div>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Upcoming Bills</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+            </div>
+            <ul class="row-list" data-upcoming-bills></ul>
+          </div>
+        </section>
+
+        <!-- Wealth: assets vs liabilities summary -->
+        <section class="glass card wealth-card stagger-in" data-wealth-card>
+          <button type="button" class="wealth-card__header" data-wealth-toggle aria-expanded="true">
+            <span class="wealth-card__header-left">
+              <span class="collapse-arrow" data-wealth-arrow><i class="fa-solid fa-chevron-up"></i></span>
+              <span class="chip tone-info wealth-card__icon"><i class="fa-solid fa-scale-balanced"></i></span>
+              <h3 class="wealth-card__title">Wealth</h3>
+            </span>
+            <span class="wealth-card__net num" data-wealth-net>$0.00</span>
+          </button>
+
+          <div class="wealth-card__body" data-wealth-body>
+            <div class="split-bar" style="margin-top:0;">
+              <div class="split-bar__seg split-bar__seg--assets" data-wealth-bar-assets style="width:50%;"></div>
+              <div class="split-bar__seg split-bar__seg--liabilities" data-wealth-bar-liabilities style="width:50%;"></div>
+            </div>
+            <div class="split-bar__labels">
+              <span data-wealth-assets-pct>50% Assets</span>
+              <span data-wealth-net-label>Net $0.00</span>
+              <span data-wealth-liab-pct>50% Liabilities</span>
+            </div>
+
+            <div class="wealth-cols">
+              <div class="wealth-col wealth-col--assets">
+                <div class="wealth-col__header">
+                  <span><i class="fa-solid fa-arrow-trend-up"></i> ASSETS <span class="wealth-col__count" data-wealth-assets-count>0</span></span>
+                  <span class="wealth-col__total" data-wealth-assets-total>$0.00</span>
+                </div>
+                <div class="wealth-col__list" data-wealth-assets-list></div>
+              </div>
+              <div class="wealth-col wealth-col--liabilities">
+                <div class="wealth-col__header">
+                  <span><i class="fa-solid fa-arrow-trend-down"></i> LIABILITIES <span class="wealth-col__count" data-wealth-liabilities-count>0</span></span>
+                  <span class="wealth-col__total" data-wealth-liabilities-total>$0.00</span>
+                </div>
+                <div class="wealth-col__list" data-wealth-liabilities-list></div>
+              </div>
+            </div>
+
+            <div class="wealth-card__links">
+              <a href="accounts.html">Accounts <i class="fa-solid fa-arrow-right"></i></a>
+              <a href="accounts.html">All assets <i class="fa-solid fa-arrow-right"></i></a>
+              <a href="loans.html">All liabilities <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cashflow: period-filterable income vs spending summary -->
+        <section class="glass card cashflow-card stagger-in" data-cashflow-card>
+          <button type="button" class="wealth-card__header" data-cashflow-toggle aria-expanded="true">
+            <span class="wealth-card__header-left">
+              <span class="collapse-arrow" data-cashflow-arrow><i class="fa-solid fa-chevron-up"></i></span>
+              <span class="cashflow-card__icon"><i class="fa-solid fa-right-left"></i></span>
+              <h3 class="wealth-card__title">Cashflow</h3>
+            </span>
+            <span class="cashflow-card__header-right">
+              <span class="wealth-card__net" data-cashflow-net>$0.00</span>
+              <span class="cashflow-period-badge" data-cashflow-period-badge>3M</span>
+            </span>
+          </button>
+
+          <div class="wealth-card__body" data-cashflow-body>
+            <div class="cashflow-card__toolbar">
+              <div class="pill-tabs" data-cashflow-widget-tabs>
+                <button type="button" data-cf-period="1m">1M</button>
+                <button type="button" data-cf-period="3m" class="is-active-tab">3M</button>
+                <button type="button" data-cf-period="6m">6M</button>
+                <button type="button" data-cf-period="ytd">YTD</button>
+                <button type="button" data-cf-period="1y">1Y</button>
+                <button type="button" data-cf-period="all">ALL</button>
+                <button type="button" data-cf-period="custom">Custom</button>
+              </div>
+              <a href="transactions.html" class="btn btn--ghost cashflow-card__all-tx"><i class="fa-solid fa-list-ul"></i> All Transactions</a>
+            </div>
+
+            <div class="cashflow-widget-dates" data-cashflow-widget-dates style="display:none;">
+              <input type="date" id="cashflowCardFrom" class="input-sm" aria-label="From date" />
+              <span class="cashflow-widget-dates__sep">to</span>
+              <input type="date" id="cashflowCardTo" class="input-sm" aria-label="To date" />
+            </div>
+
+            <div class="cashflow-stats">
+              <div class="cashflow-stat cashflow-stat--in">
+                <span class="cashflow-stat__label"><i class="fa-solid fa-arrow-down-long"></i> IN</span>
+                <div class="cashflow-stat__value" data-cashflow-in>$0.00</div>
+                <span class="cashflow-stat__sub">all income</span>
+              </div>
+              <div class="cashflow-stat cashflow-stat--out">
+                <span class="cashflow-stat__label"><i class="fa-solid fa-arrow-up-long"></i> OUT</span>
+                <div class="cashflow-stat__value" data-cashflow-out>$0.00</div>
+                <span class="cashflow-stat__sub">spending</span>
+              </div>
+              <div class="cashflow-stat" data-cashflow-flag-box>
+                <span class="cashflow-stat__label" data-cashflow-flag-label><i class="fa-solid fa-triangle-exclamation"></i> OVERSPENT</span>
+                <div class="cashflow-stat__value" data-cashflow-flag-value>$0.00</div>
+                <span class="cashflow-stat__sub" data-cashflow-flag-sub></span>
+              </div>
+            </div>
+
+            <div class="cashflow-cols">
+              <div class="cashflow-col cashflow-col--out">
+                <div class="cashflow-col__header">
+                  <span>Where it went</span>
+                  <span data-cashflow-out-total>$0.00</span>
+                </div>
+                <div class="cashflow-col__list" data-cashflow-out-list></div>
+              </div>
+              <div class="cashflow-col cashflow-col--in">
+                <div class="cashflow-col__header">
+                  <span>Where it came from</span>
+                  <span data-cashflow-in-total>$0.00</span>
+                </div>
+                <div class="cashflow-col__list" data-cashflow-in-list></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cash flow chart (filterable) -->
+        <section class="stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header" style="flex-wrap:wrap; gap:var(--sp-3); align-items:center;">
+              <h3 class="card__title" data-cashflow-title>Cash Flow — This Month</h3>
+              <div style="display:flex; gap:var(--sp-2); align-items:center; flex-wrap:wrap;">
+                <div class="pill-tabs" data-cashflow-tabs>
+                  <button data-cashflow-period="month" class="is-active-tab">Month</button>
+                  <button data-cashflow-period="year">Year</button>
+                  <button data-cashflow-period="all">All Time</button>
+                  <button data-cashflow-period="custom">Custom</button>
+                </div>
+                <input type="date" id="cashflowFrom" class="input-sm" style="display:none;" aria-label="From date" />
+                <input type="date" id="cashflowTo" class="input-sm" style="display:none;" aria-label="To date" />
+              </div>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="cashFlowChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/utils/moi.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/datepicker.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Reports · Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="assets/css/variables.css" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+
+  <style>
+    /* ── Report page extras ── */
+    .report-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+    }
+    .period-tabs {
+      display: flex;
+      gap: var(--sp-1);
+      background: var(--color-surface-strong);
+      border: 1px solid var(--color-surface-border-strong);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+    }
+    .period-tabs button {
+      border: none;
+      background: transparent;
+      color: var(--color-text-muted);
+      font-size: var(--fs-sm);
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: background var(--dur-fast), color var(--dur-fast);
+    }
+    .period-tabs button.is-active-tab {
+      background: var(--color-accent);
+      color: #0a0f1a;
+    }
+
+    /* ── Summary stat row ── */
+    .report-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-4);
+    }
+    @media (max-width: 900px) { .report-stats { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 540px) { .report-stats { grid-template-columns: 1fr; } }
+
+    .report-stat-card {
+      cursor: pointer;
+      transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+      outline: none;
+    }
+    .report-stat-card:hover,
+    .report-stat-card:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-surface-border-strong);
+    }
+    .report-stat-card:active { transform: translateY(-1px); }
+
+    .stat-number {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xl);
+      font-weight: 700;
+      margin: var(--sp-2) 0 0;
+    }
+    .stat-sub {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Chart grid ── */
+    .chart-grid-3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--sp-4);
+    }
+    @media (max-width: 860px) { .chart-grid-3 { grid-template-columns: 1fr; } }
+
+    .chart-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-4);
+    }
+    @media (max-width: 860px) { .chart-grid-2 { grid-template-columns: 1fr; } }
+
+    .chart-panel__canvas-wrap {
+      position: relative;
+      height: 220px;
+    }
+    .chart-panel__canvas-wrap--tall {
+      height: 280px;
+    }
+
+    /* ── Month nav ── */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .month-nav button {
+      background: var(--color-surface-strong);
+      border: 1px solid var(--color-surface-border-strong);
+      color: var(--color-text);
+      border-radius: var(--radius-sm);
+      width: 30px; height: 30px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--dur-fast);
+    }
+    .month-nav button:hover { background: var(--color-surface-strong); }
+    .month-nav__label {
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    /* ── Top lists ── */
+    .list-row { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) 0; border-bottom: 1px solid var(--color-surface-border); }
+    .list-row:last-child { border-bottom: none; }
+    .list-row__meta { flex: 1; min-width: 0; }
+    .list-row__title { font-size: var(--fs-sm); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-row__sub { font-size: var(--fs-xs); color: var(--color-text-muted); margin-top: 2px; }
+    .list-row__amount { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
+    .list-row__bar-wrap { flex: 1; background: var(--color-surface); border-radius: var(--radius-pill); height: 6px; overflow: hidden; }
+    .list-row__bar { height: 100%; border-radius: var(--radius-pill); transition: width 0.6s var(--ease-out); }
+
+    /* ── Category legend ── */
+    .legend-inline { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: var(--sp-3); }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .legend-item__amount { color: var(--color-text); font-weight: 600; margin-left: 2px; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── Insight cards ── */
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-3);
+    }
+    @media (max-width: 720px) { .insight-grid { grid-template-columns: 1fr; } }
+
+    .insight-card {
+      position: relative;
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      border-top-color: var(--glass-highlight-soft);
+      border-radius: var(--radius-md);
+      backdrop-filter: var(--blur-glass);
+      -webkit-backdrop-filter: var(--blur-glass);
+      box-shadow: var(--shadow-sm);
+      padding: var(--sp-4);
+      display: flex;
+      gap: var(--sp-3);
+      align-items: flex-start;
+    }
+    .insight-card__icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 15px;
+    }
+    .insight-card__body { flex: 1; }
+    .insight-card__label { font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .insight-card__value { font-family: var(--font-mono); font-size: var(--fs-md); font-weight: 700; margin: 3px 0; }
+    .insight-card__note { font-size: var(--fs-xs); color: var(--color-text-faint); }
+
+    /* Export dropdown styling now lives in assets/css/components.css so it's
+       shared with the Expense and Income pages too. */
+
+    /* ── Savings rate gauge ── */
+    .gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); padding: var(--sp-4) 0; }
+    .gauge-label { font-size: var(--fs-xs); color: var(--color-text-muted); }
+    .gauge-value { font-family: var(--font-mono); font-size: var(--fs-2xl); font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="bg-atmosphere" aria-hidden="true"></div>
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <!-- rendered by components/sidebar.js from nav-config.js -->
+    </aside>
+
+    <div>
+      <!-- ============ TOPBAR ============ -->
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap: var(--sp-3);">
+          <button class="btn--icon mobile-nav-toggle" data-mobile-nav-toggle aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="topbar__greeting">
+            <h1>Reports</h1>
+            <span class="topbar__date" data-fulldate>Loading date…</span>
+          </div>
+        </div>
+
+        <div class="topbar__actions" style="display:flex; align-items:center; gap:var(--sp-3);">
+          <!-- Export dropdown -->
+          <div id="reportExportContainer"></div>
+          <button class="btn--icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ MAIN CONTENT ============ -->
+      <main class="main">
+
+        <!-- Period bar -->
+        <section class="report-header-bar stagger-in">
+          <div style="display:flex; align-items:center; gap:var(--sp-4);">
+            <h2 style="margin:0;">Overview · <span data-period-label>This Month</span></h2>
+            <!-- Month navigator (shown for monthly) -->
+            <div class="month-nav" id="monthNav">
+              <button id="prevMonth" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+              <span class="month-nav__label" id="monthNavLabel"></span>
+              <button id="nextMonth" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="period-tabs" style="flex-wrap:wrap;">
+            <button data-period-tab="daily">Daily</button>
+            <button data-period-tab="weekly">Weekly</button>
+            <button data-period-tab="monthly" class="is-active-tab">Monthly</button>
+            <button data-period-tab="yearly">Yearly</button>
+            <button data-period-tab="lifetime">Lifetime</button>
+            <button data-period-tab="custom">Custom</button>
+            <input type="date" class="input-sm" data-period-custom-from style="display:none;" />
+            <input type="date" class="input-sm" data-period-custom-to style="display:none;" />
+          </div>
+        </section>
+
+        <!-- ── 4 stat cards ── -->
+        <section class="report-stats stagger-in">
+          <div class="glass card report-stat-card" data-report-nav="income.html" role="button" tabindex="0" aria-label="Open Income page">
+            <div class="card__header">
+              <h3 class="card__title">Total Income</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-arrow-trend-up"></i></span>
+            </div>
+            <div class="stat-number" style="color:var(--color-accent);" data-period-income>$0.00</div>
+            <div class="stat-sub" data-income-txn-count>0 transactions</div>
+          </div>
+          <div class="glass card report-stat-card" data-report-nav="expense.html" role="button" tabindex="0" aria-label="Open Expenses page">
+            <div class="card__header">
+              <h3 class="card__title">Total Expenses</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-arrow-trend-down"></i></span>
+            </div>
+            <div class="stat-number" style="color:var(--color-negative);" data-period-expense>$0.00</div>
+            <div class="stat-sub" data-expense-txn-count>0 transactions</div>
+          </div>
+          <div class="glass card report-stat-card" data-report-nav="accounts.html" role="button" tabindex="0" aria-label="Open Assets page">
+            <div class="card__header">
+              <h3 class="card__title">Total Investment</h3>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-chart-line"></i></span>
+            </div>
+            <div class="stat-number" style="color:var(--color-violet);" data-period-investment>$0.00</div>
+            <div class="stat-sub" data-investment-txn-count>0 holdings added</div>
+          </div>
+          <div class="glass card report-stat-card" data-report-nav="goals.html" role="button" tabindex="0" aria-label="Open Goals page">
+            <div class="card__header">
+              <h3 class="card__title">Net Savings</h3>
+              <span class="chip tone-info card__icon"><i class="fa-solid fa-piggy-bank"></i></span>
+            </div>
+            <div class="stat-number" data-period-net>$0.00</div>
+            <div class="stat-sub" data-savings-rate>Savings rate: 0%</div>
+          </div>
+        </section>
+
+        <!-- ── Insights row ── -->
+        <section class="stagger-in">
+          <h3 class="section-title" style="margin-bottom:var(--sp-3);">Key Insights</h3>
+          <div class="insight-grid" id="insightGrid">
+            <!-- populated by JS -->
+          </div>
+        </section>
+
+        <!-- ── Investment Growth: mirrors the Assets page — cumulative
+             capital invested over time, from purchase history, principal
+             only (no returns). ── -->
+        <section class="stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <div>
+                <h3 class="card__title">Investment Growth</h3>
+                <p class="chart-panel__sub" data-report-investment-growth-sub>How much you've put in over time — invested amount only, not returns.</p>
+              </div>
+              <span class="chip tone-violet card__icon"><i class="fa-solid fa-seedling"></i></span>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="reportInvestmentGrowthChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Main charts row ── -->
+        <section class="chart-grid-3 stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Income vs Expense</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap--tall chart-panel__canvas-wrap">
+              <canvas id="comparisonChart"></canvas>
+            </div>
+          </div>
+
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Expense by Category</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="legend-inline" data-category-legend></div>
+          </div>
+        </section>
+
+        <!-- ── Trend + Savings rate ── -->
+        <section class="chart-grid-2 stagger-in">
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Net Savings Trend</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </div>
+
+          <div class="glass card chart-panel">
+            <div class="card__header">
+              <h3 class="card__title">Income Breakdown</h3>
+            </div>
+            <div class="chart-panel__canvas-wrap">
+              <canvas id="incomeChart"></canvas>
+            </div>
+            <div class="legend-inline" data-income-legend></div>
+          </div>
+        </section>
+
+        <!-- ── Top lists side-by-side ── -->
+        <section class="chart-grid-2 stagger-in">
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Top Expenses</h3>
+              <span class="chip tone-negative card__icon"><i class="fa-solid fa-ranking-star"></i></span>
+            </div>
+            <ul class="row-list" id="topExpensesList"></ul>
+          </div>
+
+          <div class="glass card">
+            <div class="card__header">
+              <h3 class="card__title">Top Income Sources</h3>
+              <span class="chip tone-accent card__icon"><i class="fa-solid fa-ranking-star"></i></span>
+            </div>
+            <ul class="row-list" id="topIncomeList"></ul>
+          </div>
+        </section>
+
+        <!-- ── Full transaction table ── -->
+        <section class="glass card stagger-in">
+          <div class="card__header" style="flex-wrap:wrap; gap:var(--sp-3);">
+            <h3 class="card__title">All Transactions</h3>
+            <div style="display:flex; gap:var(--sp-2); align-items:center; flex-wrap:wrap;">
+              <select id="txnTypeFilter" class="select-sm">
+                <option value="all">All types</option>
+                <option value="income">Income only</option>
+                <option value="expense">Expense only</option>
+              </select>
+              <input type="text" id="txnSearch" class="input-sm" placeholder="Search…" />
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="txnTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th style="text-align:right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="txnTableBody"></tbody>
+            </table>
+          </div>
+          <div id="txnPagination" style="display:flex; justify-content:space-between; align-items:center; margin-top:var(--sp-3); font-size:var(--fs-sm); color:var(--color-text-muted);"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="assets/js/utils/storage.js"></script>
+  <script src="assets/js/utils/helpers.js"></script>
+  <script src="assets/js/utils/categories.js"></script>
+  <script src="assets/js/utils/transactions.js"></script>
+  <script src="assets/js/utils/investments.js"></script>
+  <script src="assets/js/utils/seed.js"></script>
+  <script src="assets/js/utils/pdf-fonts.js"></script>
+  <script src="assets/js/utils/export.js"></script>
+  <script src="assets/js/components/theme.js"></script>
+  <script src="assets/js/nav-config.js"></script>
+  <script src="assets/js/components/sidebar.js"></script>
+  <script src="assets/js/components/subtabs.js"></script>
+  <script src="assets/js/components/toast.js"></script>
+  <script src="assets/js/components/charts.js"></script>
+  <script src="assets/js/components/datepicker.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/reports.js"></script>
+</body>
+</html>
