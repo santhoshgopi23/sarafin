@@ -1,0 +1,230 @@
+/* ==========================================================================
+   mobile.css — dedicated phone experience layer
+
+   Loaded LAST on every page, so it wins over layout.css / components.css /
+   dashboard.css without needing !important everywhere. Everything in here
+   is scoped to phone-sized viewports (max-width: 768px) — desktop and
+   tablet layouts are untouched.
+
+   Goals:
+   - One column, top-to-bottom flow. Nothing on the page itself ever
+     scrolls sideways (a couple of *contained* horizontal scrollers — wide
+     data tables, the pill sub-tabs bar — are a deliberate, standard native-
+     app pattern, not the page moving sideways).
+   - Real navigation: a fixed bottom tab bar (thumb reach) replaces the
+     desktop sidebar + hamburger drawer.
+   - Comfortable 44px+ touch targets everywhere, 16px inputs (no iOS
+     zoom-on-focus), safe-area padding for notches / home indicators.
+   ========================================================================== */
+
+/* ---- Bottom tab bar (built by Sidebar.renderBottomNav() in sidebar.js) --
+   Lives in the DOM on every page but only ever visible at phone widths. */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* App shell: kill the old off-canvas sidebar + hamburger entirely — */
+  /* the bottom tab bar is the only navigation on a phone.             */
+  /* ---------------------------------------------------------------- */
+  .sidebar,
+  .mobile-nav-toggle {
+    display: none !important;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 500;
+    background: var(--color-surface-strong);
+    border-top: 1px solid var(--color-surface-border);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.18);
+    padding: 6px 2px calc(6px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav__link {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 7px 2px 6px;
+    color: var(--color-text-faint);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: var(--radius-sm);
+    position: relative;
+    transition: color var(--dur-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bottom-nav__link i {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .bottom-nav__link:active { transform: scale(0.94); }
+  .bottom-nav__link.is-active { color: var(--color-accent); }
+  .bottom-nav__link.is-active::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px; height: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-accent);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Topbar                                                            */
+  /* ---------------------------------------------------------------- */
+  .topbar {
+    padding: calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-4) var(--sp-3);
+  }
+  .topbar__greeting h1 { font-size: var(--fs-md); }
+  .topbar__date { font-size: 11px; }
+  .topbar__actions { gap: var(--sp-2); }
+  .btn--icon { width: 40px; height: 40px; }
+
+  /* ---------------------------------------------------------------- */
+  /* Main content column                                               */
+  /* ---------------------------------------------------------------- */
+  .main {
+    padding: var(--sp-4) var(--sp-4) calc(88px + env(safe-area-inset-bottom));
+    gap: var(--sp-4);
+  }
+
+  .page-tabs { margin: 0 calc(var(--sp-4) * -1); padding-left: var(--sp-4); padding-right: var(--sp-4); }
+
+  /* ---------------------------------------------------------------- */
+  /* Every multi-column grid stacks to one column, edge to edge.       */
+  /* !important beats the handful of inline grid-template-columns     */
+  /* styles (goals/net worth stat rows, dividend/holding stat pairs). */
+  /* ---------------------------------------------------------------- */
+  .grid-stats,
+  .grid-stats--3,
+  .grid-split,
+  .grid-two,
+  .asset-summary__grid,
+  .wealth-cols,
+  .cashflow-stats,
+  .cashflow-cols,
+  .field-row,
+  .settings-grid,
+  .report-stats,
+  .chart-grid-2,
+  .chart-grid-3,
+  .insight-grid,
+  .txn-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-stats, .grid-stats--3, .grid-two, .grid-split { gap: var(--sp-3); }
+
+  /* ---------------------------------------------------------------- */
+  /* Cards & panels — a touch tighter so more fits above the fold.     */
+  /* ---------------------------------------------------------------- */
+  .card { padding: var(--sp-4); }
+  .card__title { font-size: 11px; }
+
+  .hero-balance { padding: var(--sp-4); }
+  .hero-balance__value { font-size: clamp(1.9rem, 9vw, 2.5rem); }
+  .hero-balance__row { gap: var(--sp-4); }
+  .hero-balance__actions { gap: var(--sp-2); }
+  .hero-balance__actions .btn { flex: 1 1 auto; justify-content: center; }
+
+  .quick-actions { gap: var(--sp-2); }
+  .quick-action { min-width: 0; flex: 1 1 calc(50% - var(--sp-2)); }
+
+  .stat-card__value { font-size: var(--fs-lg); }
+
+  .goal-card__ring-wrap { width: 128px; height: 128px; }
+
+  .chart-panel__canvas-wrap { height: 200px; }
+
+  .assistant-thread { height: 58vh; }
+  .assistant-bubble { max-width: 88%; }
+
+  /* ---------------------------------------------------------------- */
+  /* Buttons & touch targets                                          */
+  /* ---------------------------------------------------------------- */
+  .btn { min-height: 44px; padding: 11px 16px; }
+  .btn--icon { padding: 0; }
+
+  .period-tabs, .pill-tabs { width: 100%; }
+  .period-tabs button, .pill-tabs button { flex: 1; text-align: center; min-height: 38px; }
+
+  /* ---------------------------------------------------------------- */
+  /* Forms — 16px inputs (stops iOS auto-zoom on focus), full width,   */
+  /* generous tap height.                                              */
+  /* ---------------------------------------------------------------- */
+  .field input,
+  .field select,
+  .field textarea,
+  .input-sm,
+  .select-sm {
+    font-size: 16px;
+    min-height: 44px;
+    padding: 11px 14px;
+  }
+  .field textarea { min-height: 88px; }
+  .modal-filter-bar { flex-wrap: wrap; }
+  .modal-filter-bar .search { width: 100%; }
+
+  /* ---------------------------------------------------------------- */
+  /* View pages / "modals" — already full-screen; just tighten the     */
+  /* phone padding and respect the notch.                              */
+  /* ---------------------------------------------------------------- */
+  .modal-backdrop {
+    padding: calc(var(--sp-4) + env(safe-area-inset-top)) var(--sp-4) calc(var(--sp-8) + env(safe-area-inset-bottom));
+  }
+  .modal { padding: var(--sp-4); }
+  .view-page__header h1 { font-size: var(--fs-lg); }
+  .view-page__header { gap: var(--sp-3); }
+
+  /* ---------------------------------------------------------------- */
+  /* Tables — the one place a *contained* sideways scroll is kept on   */
+  /* purpose (every finance app does this for dense data); the page    */
+  /* itself never moves sideways because of it.                        */
+  /* ---------------------------------------------------------------- */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .holdings-table { min-width: 640px; }
+
+  /* ---------------------------------------------------------------- */
+  /* Small pickers inside modals — one extra column tightened so they  */
+  /* never crowd a narrow (<=380px) phone.                             */
+  /* ---------------------------------------------------------------- */
+  .category-picker__icon-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (max-width: 380px) {
+  .category-picker__grid { grid-template-columns: repeat(3, 1fr); }
+  .quick-action { flex: 1 1 100%; }
+}
+
+/* ---------------------------------------------------------------- */
+/* Splash / entry screen                                             */
+/* ---------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .splash { padding: var(--sp-5) var(--sp-4); }
+  .splash__actions { flex-direction: column; width: 100%; max-width: 320px; }
+  .splash__actions .btn { width: 100%; justify-content: center; min-height: 48px; }
+  .splash__foot { position: static; margin-top: var(--sp-6); }
+}

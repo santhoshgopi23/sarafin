@@ -1,0 +1,472 @@
+/* ==========================================================================
+   dashboard.css — hero balance, stat cards, quick actions, chart panels
+   ========================================================================== */
+
+/* ---- Hero: current balance ledger tape ---- */
+.hero-balance {
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-6);
+  background: radial-gradient(120% 140% at 100% 0%, rgba(51,192,127,0.14), transparent 60%), var(--color-surface);
+}
+
+.hero-balance__label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-faint);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.hero-balance__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.2rem, 5vw, var(--fs-3xl));
+  font-weight: 600;
+  margin: var(--sp-2) 0 var(--sp-4);
+  letter-spacing: -0.02em;
+}
+.hero-balance__value .cents { color: var(--color-text-faint); font-size: 0.5em; }
+
+.hero-balance__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--color-surface-border);
+}
+.hero-balance__mini { display: flex; flex-direction: column; gap: 2px; }
+.hero-balance__mini-label { font-size: var(--fs-xs); color: var(--color-text-faint); }
+.hero-balance__mini-value { font-family: var(--font-mono); font-size: var(--fs-md); font-weight: 600; }
+
+.hero-balance__actions {
+  display: flex;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+/* faint ledger tick marks along the bottom of the hero, purely decorative */
+.hero-balance__ticks {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 28px;
+  background-image: repeating-linear-gradient(90deg, var(--color-surface-border) 0 1px, transparent 1px 24px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ---- Stat cards ---- */
+.stat-card__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  margin: 2px 0 6px;
+}
+.stat-card__delta { font-size: var(--fs-xs); display: flex; align-items: center; gap: 4px; }
+
+/* ---- Quick actions ---- */
+.quick-actions {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.quick-action {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border-strong);
+  text-align: left;
+  transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.quick-action:hover { transform: translateY(-2px); border-color: var(--color-surface-border-strong); }
+.quick-action span { font-size: var(--fs-sm); font-weight: 600; }
+
+/* ---- Chart panel ---- */
+.chart-panel__canvas-wrap { position: relative; height: 220px; }
+.chart-panel__sub {
+  font-size: var(--fs-xs);
+  color: var(--color-text-faint);
+  margin-top: 2px;
+}
+
+.legend-inline { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-4); }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--color-text-muted); }
+.legend-item__amount { color: var(--color-text); font-weight: 600; margin-left: 2px; }
+.legend-swatch { width: 8px; height: 8px; border-radius: 2px; }
+
+/* ---- Bills / calendar mini list ---- */
+.bill-date {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-strong);
+  flex-shrink: 0;
+}
+.bill-date__day { font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-md); line-height: 1; }
+.bill-date__month { font-size: 9px; text-transform: uppercase; color: var(--color-text-faint); letter-spacing: 0.06em; }
+
+/* ---- Section heading row ---- */
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--sp-1);
+}
+.section-heading a { font-size: var(--fs-xs); color: var(--color-accent); font-weight: 600; }
+
+/* ---- Savings goal progress ring ---- */
+.goal-card__ring-wrap {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  margin: 0 auto;
+}
+.goal-card__ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.goal-card__ring-track {
+  fill: none;
+  stroke: var(--color-surface-border);
+  stroke-width: 10;
+}
+.goal-card__ring-fill {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
+}
+.goal-card__ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.goal-card__pct {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+/* ---- Credit card panel ---- */
+.credit-card-panel {
+  background: radial-gradient(120% 140% at 100% 0%, rgba(139,124,216,0.14), transparent 60%), var(--color-surface);
+}
+.credit-card-panel__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* ---- Report period tabs ---- */
+.period-tabs {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border-strong);
+  gap: 2px;
+}
+.period-tabs button {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.period-tabs button.is-active-tab {
+  background: var(--gradient-accent);
+  color: #ffffff;
+}
+
+/* ---- AI Assistant chat ---- */
+.assistant-thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  height: 420px;
+  overflow-y: auto;
+  padding: var(--sp-2);
+}
+.assistant-bubble {
+  max-width: 78%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  animation: rise-in var(--dur-base) var(--ease-out) both;
+}
+.assistant-bubble--bot {
+  align-self: flex-start;
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border);
+  border-bottom-left-radius: 4px;
+}
+.assistant-bubble--user {
+  align-self: flex-end;
+  background: var(--gradient-accent);
+  color: #ffffff;
+  font-weight: 500;
+  border-bottom-right-radius: 4px;
+}
+.suggestion-chip {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border-strong);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.suggestion-chip:hover { background: var(--color-surface-strong); color: var(--color-text); }
+
+/* ---- Wealth: collapsible assets-vs-liabilities summary ---- */
+.wealth-card { padding: var(--sp-5); }
+
+.wealth-card__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.wealth-card__header-left { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+.wealth-card__icon { width: 30px; height: 30px; font-size: var(--fs-sm); flex-shrink: 0; }
+.wealth-card__title { margin: 0; font-size: var(--fs-base); font-weight: 700; color: var(--color-text); }
+.wealth-card__net {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.collapse-arrow { color: var(--color-text-faint); font-size: var(--fs-xs); transition: transform var(--dur-base) var(--ease-out); flex-shrink: 0; }
+.collapse-arrow.is-collapsed { transform: rotate(180deg); }
+
+.wealth-card__body { margin-top: var(--sp-4); overflow: hidden; }
+.wealth-card__body.is-collapsed { display: none; }
+
+.wealth-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+@media (max-width: 720px) {
+  .wealth-cols { grid-template-columns: 1fr; }
+}
+
+.wealth-col { border-radius: var(--radius-md); padding: var(--sp-4); }
+.wealth-col--assets { background: rgba(52, 211, 153, 0.07); border: 1px solid rgba(52, 211, 153, 0.18); }
+.wealth-col--liabilities { background: rgba(239, 90, 90, 0.07); border: 1px solid rgba(239, 90, 90, 0.18); }
+
+.wealth-col__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--sp-3);
+}
+.wealth-col--assets .wealth-col__header i { color: var(--color-accent); margin-right: 4px; }
+.wealth-col--liabilities .wealth-col__header i { color: var(--color-negative); margin-right: 4px; }
+.wealth-col__count { color: var(--color-text-faint); font-weight: 600; }
+.wealth-col__total {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.wealth-col--assets .wealth-col__total { color: var(--color-accent); }
+.wealth-col--liabilities .wealth-col__total { color: var(--color-negative); }
+
+.wealth-col__list { display: flex; flex-direction: column; gap: var(--sp-3); }
+.wealth-row__top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); font-size: var(--fs-sm); margin-bottom: 5px; }
+.wealth-row__label { display: flex; align-items: center; gap: 8px; color: var(--color-text); min-width: 0; }
+.wealth-row__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.wealth-row__value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-text-muted); white-space: nowrap; }
+.wealth-row__bar { height: 4px; border-radius: var(--radius-pill); background: var(--color-surface-border); overflow: hidden; }
+.wealth-row__bar-fill { height: 100%; border-radius: inherit; }
+
+.wealth-card__links { display: flex; gap: var(--sp-5); margin-top: var(--sp-5); flex-wrap: wrap; font-size: var(--fs-sm); }
+.wealth-card__links a { color: var(--color-text-muted); text-decoration: none; font-weight: 600; }
+.wealth-card__links a i { font-size: 0.75em; margin-left: 2px; }
+.wealth-card__links a:hover { color: var(--color-accent); }
+
+.wealth-empty { color: var(--color-text-faint); font-size: var(--fs-sm); margin: 0; }
+
+/* ---- Cashflow: collapsible period-filterable income/spending summary ---- */
+.cashflow-card { padding: var(--sp-5); }
+.cashflow-card__icon { color: var(--color-negative); font-size: var(--fs-md); display: inline-flex; }
+.cashflow-card__header-right { display: flex; align-items: center; gap: var(--sp-2); }
+.cashflow-period-badge {
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border-strong);
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.cashflow-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+@media (max-width: 720px) {
+  .cashflow-stats { grid-template-columns: 1fr; }
+}
+.cashflow-stat {
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border);
+}
+.cashflow-stat--in { background: rgba(52, 211, 153, 0.07); border-color: rgba(52, 211, 153, 0.18); }
+.cashflow-stat--out { background: rgba(239, 90, 90, 0.07); border-color: rgba(239, 90, 90, 0.18); }
+.cashflow-stat--flag-overspent { background: rgba(239, 90, 90, 0.07); border-color: rgba(239, 90, 90, 0.18); }
+.cashflow-stat--flag-saved { background: rgba(52, 211, 153, 0.07); border-color: rgba(52, 211, 153, 0.18); }
+.cashflow-stat__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.cashflow-stat--in .cashflow-stat__label { color: var(--color-accent); }
+.cashflow-stat--out .cashflow-stat__label { color: var(--color-negative); }
+.cashflow-stat--flag-overspent .cashflow-stat__label { color: var(--color-negative); }
+.cashflow-stat--flag-saved .cashflow-stat__label { color: var(--color-accent); }
+.cashflow-stat__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  margin-top: 6px;
+  color: var(--color-text);
+}
+.cashflow-stat--in .cashflow-stat__value { color: var(--color-accent); }
+.cashflow-stat--out .cashflow-stat__value,
+.cashflow-stat--flag-overspent .cashflow-stat__value { color: var(--color-negative); }
+.cashflow-stat--flag-saved .cashflow-stat__value { color: var(--color-accent); }
+.cashflow-stat__sub { display: block; font-size: var(--fs-xs); color: var(--color-text-faint); margin-top: 4px; }
+
+.cashflow-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+@media (max-width: 720px) {
+  .cashflow-cols { grid-template-columns: 1fr; }
+}
+.cashflow-col {
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border);
+  border-left: 3px solid var(--color-negative);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+}
+.cashflow-col--in { border-left-color: var(--color-accent); }
+.cashflow-col__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--sp-3);
+}
+.cashflow-col__header span:last-child { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: normal; color: var(--color-text); }
+
+.cashflow-col__list { display: flex; flex-direction: column; gap: var(--sp-3); }
+.cashflow-row__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); font-size: var(--fs-sm); margin-bottom: 5px; }
+.cashflow-row__label { font-weight: 700; color: var(--color-text); }
+.cashflow-row__value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-text-muted); white-space: nowrap; }
+.cashflow-row__pct { font-size: var(--fs-xs); font-weight: 700; margin-left: 4px; }
+.cashflow-col--out .cashflow-row__pct { color: var(--color-negative); }
+.cashflow-col--in .cashflow-row__pct { color: var(--color-accent); }
+.cashflow-row__bar { height: 4px; border-radius: var(--radius-pill); background: var(--color-surface-border); overflow: hidden; }
+.cashflow-row__bar-fill { height: 100%; border-radius: inherit; }
+.cashflow-col--out .cashflow-row__bar-fill { background: var(--color-negative); }
+.cashflow-col--in .cashflow-row__bar-fill { background: var(--color-accent); }
+
+.cashflow-empty { text-align: center; padding: var(--sp-4) 0; }
+.cashflow-empty p { color: var(--color-text-faint); font-size: var(--fs-sm); margin: 0 0 6px; }
+.cashflow-empty a { color: var(--color-accent); font-weight: 600; text-decoration: none; font-size: var(--fs-sm); }
+.cashflow-empty a:hover { text-decoration: underline; }
+
+/* ---- Cashflow card toolbar: period pills + "All Transactions" link ---- */
+.cashflow-card__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.cashflow-card__all-tx {
+  padding: 8px 16px;
+  font-size: var(--fs-sm);
+  flex-shrink: 0;
+}
+@media (max-width: 560px) {
+  .cashflow-card__toolbar { flex-direction: column; align-items: stretch; }
+  .cashflow-card__toolbar .pill-tabs { justify-content: center; }
+  .cashflow-card__all-tx { justify-content: center; }
+}
+
+/* ---- Custom range row for the Cashflow card's period filter ---- */
+.cashflow-widget-dates {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-3);
+  background: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-md);
+}
+.cashflow-widget-dates__sep {
+  color: var(--color-text-faint);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.cashflow-widget-dates .input-sm { flex: 1; }
+@media (max-width: 420px) {
+  .cashflow-widget-dates { flex-wrap: wrap; }
+}

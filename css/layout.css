@@ -1,0 +1,244 @@
+/* ==========================================================================
+   layout.css — app shell: sidebar + topbar + responsive content grid
+   ========================================================================== */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+/* The content column (topbar + main) is a bare grid item with no class of
+   its own — without min-width:0 a grid item won't shrink below its
+   content's natural width, so any wide descendant (a button row, a table,
+   a stat strip) silently stretches the whole page horizontally instead of
+   scrolling within itself. This is what actually makes each section's own
+   overflow-x:auto (page tabs, action rows, tables) work as intended on
+   narrow screens. */
+.app-shell > div {
+  min-width: 0;
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: var(--sp-5) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  background: var(--color-surface-strong);
+  border-right: 1px solid var(--color-surface-border);
+  box-shadow: inset -1px 0 0 var(--glass-highlight-soft);
+  backdrop-filter: var(--blur-glass-heavy);
+  -webkit-backdrop-filter: var(--blur-glass-heavy);
+  z-index: 50;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-2);
+}
+.sidebar__brand-mark {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--gradient-accent);
+  display: grid; place-items: center;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  flex-shrink: 0;
+}
+.sidebar__brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  letter-spacing: -0.01em;
+}
+.sidebar__brand-tag {
+  font-size: 10px;
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.nav-group { display: flex; flex-direction: column; gap: 2px; }
+.nav-group__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-faint);
+  padding: 0 var(--sp-3);
+  margin-bottom: var(--sp-1);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 10px var(--sp-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  position: relative;
+}
+.nav-link i { width: 18px; text-align: center; font-size: 15px; }
+.nav-link:hover { background: var(--color-surface-strong); color: var(--color-text); }
+.nav-link.is-active {
+  background: rgba(47, 122, 82, 0.14);
+  color: var(--color-text);
+}
+.nav-link.is-active::before {
+  content: '';
+  position: absolute;
+  left: -4px; top: 20%;
+  height: 60%; width: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-accent);
+}
+
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--color-surface-border);
+}
+
+/* ---- Topbar ---- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--sp-6);
+  background: var(--color-surface);
+  box-shadow: inset 0 -1px 0 var(--glass-highlight-soft);
+  backdrop-filter: var(--blur-glass-heavy);
+  -webkit-backdrop-filter: var(--blur-glass-heavy);
+  border-bottom: 1px solid var(--color-surface-border);
+}
+
+.topbar__greeting { display: flex; flex-direction: column; }
+.topbar__greeting h1 { font-size: var(--fs-lg); margin: 0; }
+.topbar__date { font-size: var(--fs-xs); color: var(--color-text-faint); }
+
+.topbar__actions { display: flex; align-items: center; gap: var(--sp-3); }
+
+.notif-dot {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--color-negative);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* ---- Main content ---- */
+.main {
+  min-width: 0;
+  padding: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ---- Dashboard grid ---- */
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-5);
+}
+
+/* 3-column variant (Budget/Liabilities/Tags summary rows, etc.) — a
+   modifier class instead of an inline style so it can still be
+   overridden responsively; an inline grid-template-columns would beat
+   any media query below no matter what. */
+.grid-stats--3 { grid-template-columns: repeat(3, 1fr); }
+
+/* Total Assets summary row (Invested / Current Value / P&L) on the
+   Assets page — same reasoning as .grid-stats--3 above. */
+.asset-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+
+.grid-split {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+/* ---- Mobile nav toggle (hidden on desktop) ---- */
+.mobile-nav-toggle { display: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 1180px) {
+  .grid-stats { grid-template-columns: repeat(2, 1fr); }
+  .grid-split { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .grid-stats--3 { grid-template-columns: 1fr; }
+  .asset-summary__grid { grid-template-columns: 1fr; gap: var(--sp-4); }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .sidebar.is-open { transform: translateX(0); }
+  .mobile-nav-toggle {
+    display: grid;
+    place-items: center;
+  }
+  .topbar { padding: 0 var(--sp-4); }
+  .topbar__greeting h1 { font-size: var(--fs-md); }
+  .main { padding: var(--sp-4); }
+  .topbar {
+    height: auto;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--sp-3) 0;
+    padding: var(--sp-3) var(--sp-4);
+  }
+  .topbar > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .topbar__actions {
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .topbar__actions::-webkit-scrollbar { display: none; }
+  .topbar__actions > * { flex-shrink: 0; }
+  .topbar .search { display: none; }
+}
+
+@media (max-width: 620px) {
+  .grid-stats { grid-template-columns: 1fr; }
+  .grid-two { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,142 @@
+/* ==========================================================================
+   variables.css
+   Design tokens for Ledger (personal finance app).
+
+   PREMIUM FINTECH PASS — same token names as before (so every component,
+   layout and page file keeps working untouched), new values. Surfaces are
+   now clean, near-opaque panels with a soft 1px border instead of frosted
+   glass, in the spirit of Stripe / Linear / Wise: quiet color, restrained
+   shadow, tight radius, clear type hierarchy.
+   ========================================================================== */
+
+:root {
+  /* ---- Color: dark mode (default) ---- */
+  --color-bg: #0b0c0f;
+  --color-bg-grid: rgba(255, 255, 255, 0);
+
+  /* Card / panel surfaces: solid, quiet, distinguished from the page
+     background by a subtle tone shift and a 1px border — not translucency. */
+  --color-surface: #131418;
+  --color-surface-strong: #1a1b20;
+  --color-surface-border: rgba(255, 255, 255, 0.08);
+  --color-surface-border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Solid popover surface for small floating menus (export dropdown, etc.)
+     that sit directly over page content. */
+  --color-popover: #17181d;
+  --color-popover-hover: #202126;
+
+  /* Kept for backward compatibility with a few older rules that still
+     reference these — set to fully transparent so no stray highlight edge
+     or sheen renders on the new flat surfaces. */
+  --glass-highlight: rgba(255, 255, 255, 0.10);
+  --glass-highlight-soft: rgba(255, 255, 255, 0.05);
+  --glass-sheen: none;
+
+  --color-text: #f1f1f3;
+  --color-text-muted: #96979f;
+  --color-text-faint: #68696f;
+
+  --color-accent: #2f7a52;        /* forest green — primary brand / positive */
+  --color-accent-strong: #245e3f;
+  --color-negative: #ef5a5a;      /* refined coral-red — expense / negative */
+  --color-negative-strong: #dc3d3d;
+  --color-profit: #33c07f;        /* green — investment profit / gain */
+  --color-profit-strong: #219a63;
+  --color-gold: #e0a730;          /* gold — goals / highlights */
+  --color-info: #4f8fe0;          /* soft blue — informational accents */
+  --color-violet: #8b7cd8;        /* investments (secondary tint) */
+
+  /* Flat, not gradients — kept as variables (still referenced across
+     components) but pointed at a single solid tone so nothing renders as
+     a decorative gradient anymore. */
+  --gradient-accent: var(--color-accent);
+  --gradient-gold: var(--color-gold);
+  --gradient-negative: var(--color-negative);
+
+  /* Ambient backdrop: one quiet, monochrome glow instead of four colored
+     blobs — just enough depth behind the page without reading as a
+     decorative background. */
+  --atmosphere: radial-gradient(60rem 34rem at 50% -12%, rgba(255, 255, 255, 0.035), transparent 60%),
+                var(--color-bg);
+
+  /* ---- Typography ---- */
+  --font-display: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.6rem;
+  --fs-2xl: 2rem;
+  --fs-3xl: 2.6rem;
+
+  /* ---- Spacing scale ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* ---- Radii & shadows ---- */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* Quiet, low-opacity shadows — depth without the glow. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 10px 24px rgba(0, 0, 0, 0.34);
+  --shadow-glow-accent: 0 0 0 1px rgba(47, 122, 82, 0.35);
+
+  /* Blur disabled — surfaces are solid now, so there's nothing behind
+     them that needs blurring. Kept as tokens so existing rules that
+     reference them still resolve to a valid (inert) value. */
+  --blur-glass: none;
+  --blur-glass-heavy: none;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 320ms;
+
+  /* ---- Layout ---- */
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 80px;
+  --topbar-h: 68px;
+}
+
+/* ---- Light mode overrides ---- */
+:root[data-theme='light'] {
+  --color-bg: #f6f7f9;
+  --color-bg-grid: rgba(10, 15, 26, 0);
+
+  --color-surface: #ffffff;
+  --color-surface-strong: #f5f6f8;
+  --color-surface-border: rgba(15, 23, 42, 0.09);
+  --color-surface-border-strong: rgba(15, 23, 42, 0.15);
+
+  --color-popover: #ffffff;
+  --color-popover-hover: #f2f4f8;
+
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --glass-highlight-soft: rgba(255, 255, 255, 0.4);
+  --glass-sheen: none;
+
+  --color-text: #12141a;
+  --color-text-muted: #5b6270;
+  --color-text-faint: #8891a0;
+
+  --atmosphere: radial-gradient(60rem 34rem at 50% -12%, rgba(15, 23, 42, 0.025), transparent 60%),
+                var(--color-bg);
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.10);
+}
